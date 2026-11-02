@@ -128,9 +128,9 @@
       background: linear-gradient(135deg, rgba(255, 20, 20, 0.55), rgba(255, 100, 0, 0.55));
       border: 3.5px solid #ff1744;
       border-radius: 18px;
-      padding: 14px 20px;
+      padding: 12px 18px;
       align-items: center;
-      gap: 18px;
+      gap: 14px;
       animation: trashFlashUltra 0.35s infinite alternate ease-in-out;
     }
 
@@ -147,6 +147,34 @@
         transform: scale(1.015);
         background: rgba(255, 109, 0, 0.55);
       }
+    }
+
+    .btn-trash-done {
+      background: #14101a;
+      border: 2px solid var(--success);
+      color: #fff;
+      border-radius: 14px;
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: none;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+      transition: transform 0.15s ease, background 0.2s ease;
+    }
+    .btn-trash-done:hover {
+      background: rgba(48, 209, 88, 0.25);
+    }
+    .btn-trash-done:active {
+      transform: scale(0.92);
+    }
+    .btn-trash-done span.check-icon {
+      color: var(--success);
+      font-size: 1.1rem;
+      font-weight: 900;
     }
 
     @keyframes dangerPulse {
@@ -835,13 +863,16 @@
     <div id="trash-alert">
       <div class="alert-icon">🗑️</div>
       <div style="flex: 1;">
-        <div style="font-size: 1.35rem; font-weight: 900; color: #fff; letter-spacing: 0.5px;">
-          ⚠️ SORTIR LES POUBELLES CE SOIR ! ⚠️
+        <div style="font-size: 1.25rem; font-weight: 900; color: #fff; letter-spacing: 0.4px;">
+          SORTIR LES POUBELLES CE SOIR !
         </div>
-        <div style="font-size: 0.95rem; color: #fff0db; margin-top: 2px; font-weight: 700;">
+        <div style="font-size: 0.92rem; color: #fff0db; margin-top: 2px; font-weight: 700;">
           Ramassage prévu très tôt demain (mardi) matin !
         </div>
       </div>
+      <button class="btn-trash-done" id="btn-trash-done" type="button" title="Désactiver jusqu'au prochain lundi">
+        <span class="check-icon">✓</span> FAIT
+      </button>
     </div>
   </div>
 
@@ -1326,21 +1357,9 @@
       checkWeekChanged(now);
     }
 
-    /* ALERTE POUBELLES STROBOSCOPIQUE : LUNDI 16H00 A 23H30 */
-    function checkTrash(now) {
-      const day = now.getDay();
-      const hour = now.getHours();
-      const min = now.getMinutes();
-      const totalMins = hour * 60 + min;
-
-      const isMondayBetween16and2330 = (day === 1 && totalMins >= 960 && totalMins <= 1410);
-
-      const alertEl = document.getElementById('trash-alert');
-      alertEl.style.display = isMondayBetween16and2330 ? 'flex' : 'none';
-    }
-
     let inkyData = {};
     let syncedWeekId = null;
+    let trashDoneWeek = null;
 
     function getWeekId(d) {
       const target = new Date(d.valueOf());
@@ -1351,6 +1370,31 @@
       if (target.getDay() !== 4) target.setMonth(0, 1 + ((4 - target.getDay()) + 7) % 7);
       return target.getFullYear() + '_W' + Math.ceil((firstThursday - target) / 604800000);
     }
+
+    /* ALERTE POUBELLES STROBOSCOPIQUE : LUNDI 16H00 A 23H30 (AVEC BOUTON FAIT) */
+    function checkTrash(now) {
+      const day = now.getDay(); // 1 = Lundi
+      const hour = now.getHours();
+      const min = now.getMinutes();
+      const totalMins = hour * 60 + min;
+
+      const currentWeek = getWeekId(now);
+      const isAlreadyDoneThisWeek = (trashDoneWeek === currentWeek);
+
+      // Actif le lundi de 16h00 à 23h30 SAUF si déjà acquitté pour la semaine
+      const isMondayBetween16and2330 = (day === 1 && totalMins >= 960 && totalMins <= 1410 && !isAlreadyDoneThisWeek);
+
+      const alertEl = document.getElementById('trash-alert');
+      alertEl.style.display = isMondayBetween16and2330 ? 'flex' : 'none';
+    }
+
+    // Clic sur le bouton "✓ FAIT" des poubelles
+    document.getElementById('btn-trash-done').addEventListener('click', () => {
+      const now = new Date();
+      const currentWeek = getWeekId(now);
+      set(ref(db, 'trash_done_week'), currentWeek);
+      triggerFullScreenFX('jow');
+    });
 
     function checkWeekChanged(now) {
       const currentWeek = getWeekId(now);
@@ -1587,13 +1631,11 @@
       if (unreadList.length > 0) {
         activeUnreadNote = unreadList[0];
         
-        // Encart compact
         loveCardTrigger.classList.add('unread');
         loveIconEl.textContent = '💌';
         loveSenderLabel.innerHTML = `Nouveau mot de <strong>${activeUnreadNote.by}</strong> ❤️`;
         loveSnippetText.textContent = activeUnreadNote.text;
 
-        // NOTIFICATION FLOTTANTE CENTRALE ULTRA-VISIBLE
         floatingLoveTitle.innerHTML = `Nouveau mot doux de <strong>${activeUnreadNote.by}</strong> ❤️`;
         floatingLoveModal.style.display = 'block';
       } else {
@@ -1603,19 +1645,16 @@
         loveSenderLabel.textContent = 'Aucun nouveau mot doux';
         loveSnippetText.textContent = 'Touchez pour voir les archives ou écrire';
         
-        // Masquer la bannière centrale flottante
         floatingLoveModal.style.display = 'none';
       }
     }
 
-    // Clic sur la notification centrale flottante -> ouvre en grand pour lire et cocher
     floatingLoveModal.addEventListener('click', () => {
       if (activeUnreadNote) {
         openNoteInBig(activeUnreadNote);
       }
     });
 
-    // Clic sur l'encart habituel
     loveCardTrigger.addEventListener('click', () => {
       if (activeUnreadNote) {
         openNoteInBig(activeUnreadNote);
@@ -1748,6 +1787,11 @@
         set(ref(db, 'inky_med_week'), currentWeek);
         set(ref(db, 'inky_meds'), {});
       }
+    });
+
+    onValue(ref(db, 'trash_done_week'), snapshot => {
+      trashDoneWeek = snapshot.val();
+      checkTrash(new Date());
     });
 
     onValue(ref(db, 'inky_meds'), snapshot => {
