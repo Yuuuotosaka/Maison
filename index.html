@@ -67,7 +67,7 @@
       gap: 14px;
       overflow-x: hidden;
       position: relative;
-      transition: background 0.4s ease, color 0.4s ease, opacity 0.5s ease, filter 0.5s ease;
+      transition: background 0.4s ease, color 0.4s ease, filter 0.5s ease;
     }
 
     /* MODE NUIT AUTOMATIQUE (23h30 - 06h30) */
@@ -122,27 +122,30 @@
       animation: dangerPulse 1.1s infinite alternate ease-in-out;
     }
 
+    /* ALERTE POUBELLES STROBOSCOPIQUE (LUNDI 16H00 - 23H30) */
     #trash-alert {
       display: none;
-      background: linear-gradient(135deg, rgba(255, 50, 50, 0.4), rgba(255, 111, 0, 0.4));
-      border: 3px solid #ff3b30;
+      background: linear-gradient(135deg, rgba(255, 20, 20, 0.55), rgba(255, 100, 0, 0.55));
+      border: 3.5px solid #ff1744;
       border-radius: 18px;
       padding: 14px 20px;
       align-items: center;
       gap: 18px;
-      animation: trashFlash 0.9s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+      animation: trashFlashUltra 0.35s infinite alternate ease-in-out;
     }
 
-    @keyframes trashFlash {
+    @keyframes trashFlashUltra {
       0% {
-        box-shadow: 0 0 12px rgba(255, 59, 48, 0.5), inset 0 0 10px rgba(255, 59, 48, 0.3);
-        border-color: #ff3b30;
-        transform: scale(1);
+        box-shadow: 0 0 16px rgba(255, 23, 68, 0.7), inset 0 0 12px rgba(255, 23, 68, 0.4);
+        border-color: #ff1744;
+        transform: scale(0.995);
+        background: rgba(255, 23, 68, 0.35);
       }
       100% {
-        box-shadow: 0 0 45px rgba(255, 69, 58, 0.95), inset 0 0 22px rgba(255, 111, 0, 0.6);
-        border-color: #ff6f00;
-        transform: scale(1.012);
+        box-shadow: 0 0 50px rgba(255, 214, 0, 0.95), inset 0 0 25px rgba(255, 111, 0, 0.7);
+        border-color: #ffd600;
+        transform: scale(1.015);
+        background: rgba(255, 109, 0, 0.55);
       }
     }
 
@@ -151,8 +154,67 @@
       100% { box-shadow: 0 0 35px var(--danger-glow); border-color: var(--amber); transform: scale(1.008); }
     }
 
-    .alert-icon { font-size: 2.2rem; animation: alertWiggle 0.9s infinite alternate ease-in-out; flex: none; }
+    .alert-icon { font-size: 2.2rem; animation: alertWiggle 0.5s infinite alternate ease-in-out; flex: none; }
     @keyframes alertWiggle { 0% { transform: rotate(-14deg) scale(0.92); } 100% { transform: rotate(14deg) scale(1.14); } }
+
+    /* NOTIFICATION FLOTTANTE CENTRALE POUR MOT DOUX NON LU */
+    #floating-love-modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 850;
+      width: 90%;
+      max-width: 520px;
+      background: linear-gradient(135deg, rgba(255, 20, 110, 0.95), rgba(120, 10, 75, 0.96));
+      border: 3px solid #ff4081;
+      border-radius: 26px;
+      padding: 24px 28px;
+      box-shadow: 0 0 60px rgba(255, 42, 133, 0.85), 0 25px 60px rgba(0, 0, 0, 0.8);
+      cursor: pointer;
+      backdrop-filter: blur(16px);
+      animation: floatLovePulse 1.2s infinite alternate ease-in-out;
+    }
+
+    @keyframes floatLovePulse {
+      0% {
+        transform: translate(-50%, -50%) scale(0.98);
+        box-shadow: 0 0 35px rgba(255, 42, 133, 0.7), 0 15px 40px rgba(0, 0, 0, 0.7);
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1.03);
+        box-shadow: 0 0 75px rgba(255, 64, 129, 1), 0 30px 70px rgba(0, 0, 0, 0.85);
+      }
+    }
+
+    .floating-love-content {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .floating-love-heart {
+      font-size: 3.4rem;
+      animation: heartbeatBig 0.8s infinite alternate ease-in-out;
+      flex: none;
+    }
+    @keyframes heartbeatBig {
+      0% { transform: scale(0.92); }
+      100% { transform: scale(1.25); }
+    }
+    .floating-love-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .floating-love-sub {
+      font-size: 0.95rem;
+      color: #ffe4f0;
+      margin-top: 6px;
+      font-weight: 600;
+    }
 
     /* En-tête */
     header {
@@ -604,7 +666,7 @@
       inset: 0;
       background: rgba(0, 0, 0, 0.85);
       backdrop-filter: blur(8px);
-      z-index: 100;
+      z-index: 900;
       align-items: center;
       justify-content: center;
       padding: 20px;
@@ -745,6 +807,17 @@
     <div id="fx-content"></div>
   </div>
 
+  <!-- NOTIFICATION FLOTTANTE CENTRALE POUR MOT DOUX NON LU -->
+  <div id="floating-love-modal">
+    <div class="floating-love-content">
+      <div class="floating-love-heart">💌</div>
+      <div style="flex: 1;">
+        <div class="floating-love-title" id="floating-love-title">Nouveau mot doux de Romain ❤️</div>
+        <div class="floating-love-sub">Touchez l'écran pour le lire en grand ✨</div>
+      </div>
+    </div>
+  </div>
+
   <div class="alerts-container">
     <div id="med-alert">
       <div class="alert-icon">💊</div>
@@ -758,15 +831,15 @@
       </div>
     </div>
 
-    <!-- Alerte Poubelle Visuelle (LUNDI DE 16H00 A 23H30 STRICT) -->
+    <!-- ALERTE POUBELLE ULTRA-FLASH (LUNDI DE 16H00 A 23H30 STRICT) -->
     <div id="trash-alert">
       <div class="alert-icon">🗑️</div>
       <div style="flex: 1;">
-        <div style="font-size: 1.25rem; font-weight: 800; color: #fff; letter-spacing: 0.3px;">
-          SORTIR LES POUBELLES CE SOIR !
+        <div style="font-size: 1.35rem; font-weight: 900; color: #fff; letter-spacing: 0.5px;">
+          ⚠️ SORTIR LES POUBELLES CE SOIR ! ⚠️
         </div>
-        <div style="font-size: 0.92rem; color: #ffebd9; margin-top: 2px; font-weight: 600;">
-          Ramassage prévu très tôt demain (mardi) matin.
+        <div style="font-size: 0.95rem; color: #fff0db; margin-top: 2px; font-weight: 700;">
+          Ramassage prévu très tôt demain (mardi) matin !
         </div>
       </div>
     </div>
@@ -966,7 +1039,7 @@
     </div>
   </div>
 
-  <!-- MODAL LECTURE MOT DOUX -->
+  <!-- MODAL LECTURE MOT DOUX EN GRAND -->
   <div class="modal-overlay" id="modal-read-love">
     <div class="modal-box">
       <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -1253,6 +1326,7 @@
       checkWeekChanged(now);
     }
 
+    /* ALERTE POUBELLES STROBOSCOPIQUE : LUNDI 16H00 A 23H30 */
     function checkTrash(now) {
       const day = now.getDay();
       const hour = now.getHours();
@@ -1465,7 +1539,7 @@
       }
     });
 
-    /* GESTION DES MOTS DOUX */
+    /* GESTION DES MOTS DOUX & NOTIFICATION CENTRALE FLOTTANTE */
     let allNotes = {};
     let activeUnreadNote = null;
 
@@ -1473,6 +1547,9 @@
     const loveIconEl = document.getElementById('love-icon-el');
     const loveSenderLabel = document.getElementById('love-sender-label');
     const loveSnippetText = document.getElementById('love-snippet-text');
+
+    const floatingLoveModal = document.getElementById('floating-love-modal');
+    const floatingLoveTitle = document.getElementById('floating-love-title');
 
     const modalReadLove = document.getElementById('modal-read-love');
     const readLoveTitle = document.getElementById('read-love-title');
@@ -1492,6 +1569,14 @@
     const btnCloseArchive = document.getElementById('btn-close-archive');
     const archiveListBox = document.getElementById('archive-list-box');
 
+    function openNoteInBig(note) {
+      readLoveTitle.textContent = `💌 Mot doux de ${note.by}`;
+      readLoveDate.textContent = new Date(note.at).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
+      readLoveBody.textContent = note.text;
+      checkMarkRead.checked = false;
+      modalReadLove.classList.add('open');
+    }
+
     function renderLoveEncart() {
       const keys = Object.keys(allNotes);
       const unreadList = keys
@@ -1501,26 +1586,39 @@
 
       if (unreadList.length > 0) {
         activeUnreadNote = unreadList[0];
+        
+        // Encart compact
         loveCardTrigger.classList.add('unread');
         loveIconEl.textContent = '💌';
         loveSenderLabel.innerHTML = `Nouveau mot de <strong>${activeUnreadNote.by}</strong> ❤️`;
         loveSnippetText.textContent = activeUnreadNote.text;
+
+        // NOTIFICATION FLOTTANTE CENTRALE ULTRA-VISIBLE
+        floatingLoveTitle.innerHTML = `Nouveau mot doux de <strong>${activeUnreadNote.by}</strong> ❤️`;
+        floatingLoveModal.style.display = 'block';
       } else {
         activeUnreadNote = null;
         loveCardTrigger.classList.remove('unread');
         loveIconEl.textContent = '✨';
         loveSenderLabel.textContent = 'Aucun nouveau mot doux';
         loveSnippetText.textContent = 'Touchez pour voir les archives ou écrire';
+        
+        // Masquer la bannière centrale flottante
+        floatingLoveModal.style.display = 'none';
       }
     }
 
+    // Clic sur la notification centrale flottante -> ouvre en grand pour lire et cocher
+    floatingLoveModal.addEventListener('click', () => {
+      if (activeUnreadNote) {
+        openNoteInBig(activeUnreadNote);
+      }
+    });
+
+    // Clic sur l'encart habituel
     loveCardTrigger.addEventListener('click', () => {
       if (activeUnreadNote) {
-        readLoveTitle.textContent = `💌 Mot doux de ${activeUnreadNote.by}`;
-        readLoveDate.textContent = new Date(activeUnreadNote.at).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
-        readLoveBody.textContent = activeUnreadNote.text;
-        checkMarkRead.checked = false;
-        modalReadLove.classList.add('open');
+        openNoteInBig(activeUnreadNote);
       } else {
         modalWriteLove.classList.add('open');
         writeLoveText.focus();
@@ -1532,7 +1630,7 @@
         set(ref(db, `love_notes/${activeUnreadNote.id}/read`), true);
         setTimeout(() => {
           modalReadLove.classList.remove('open');
-        }, 400);
+        }, 350);
       }
     });
 
