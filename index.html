@@ -9,6 +9,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
+    /* ========================================================
+       1. VARIABLES DES 5 THÈMES DESIGN
+       ======================================================== */
     :root, [data-theme="default"] {
       --bg: #14101a;
       --card: #1f1827;
@@ -55,6 +58,75 @@
       --bday-glow: rgba(255, 145, 0, 0.55);
     }
 
+    [data-theme="cyberpunk"] {
+      --bg: #070b14;
+      --body-overlay: radial-gradient(circle at 80% 0%, rgba(0, 240, 255, 0.15) 0%, transparent 60%);
+      --card: #0f172a;
+      --card-border: rgba(0, 240, 255, 0.25);
+      --amber: #00f0ff;
+      --amber-glow: rgba(0, 240, 255, 0.55);
+      --text: #e2f1f8;
+      --muted: #7e9bb0;
+      --danger: #ff0055;
+      --danger-glow: rgba(255, 0, 85, 0.6);
+      --success: #00ff9d;
+      --cal-hue: 180deg;
+      
+      --color-romain: #00f0ff;
+      --color-amelie: #ff007f;
+
+      --love-pink: #ff007f;
+      --love-pink-glow: rgba(255, 0, 127, 0.6);
+      --bday-gold: #ffe600;
+      --bday-glow: rgba(255, 230, 0, 0.6);
+    }
+
+    [data-theme="emerald"] {
+      --bg: #08120e;
+      --body-overlay: radial-gradient(circle at 50% 0%, rgba(74, 222, 128, 0.12) 0%, transparent 60%);
+      --card: #10221a;
+      --card-border: rgba(230, 195, 135, 0.2);
+      --amber: #e6c387;
+      --amber-glow: rgba(230, 195, 135, 0.45);
+      --text: #eef7f2;
+      --muted: #8ca397;
+      --danger: #f87171;
+      --danger-glow: rgba(248, 113, 113, 0.45);
+      --success: #4ade80;
+      --cal-hue: 90deg;
+      
+      --color-romain: #6ee7b7;
+      --color-amelie: #fbcfe8;
+
+      --love-pink: #fb7185;
+      --love-pink-glow: rgba(251, 113, 133, 0.5);
+      --bday-gold: #fde047;
+      --bday-glow: rgba(253, 224, 71, 0.5);
+    }
+
+    [data-theme="riviera"] {
+      --bg: #130a16;
+      --body-overlay: radial-gradient(circle at 30% 0%, rgba(255, 122, 89, 0.18) 0%, transparent 65%);
+      --card: #1d1022;
+      --card-border: rgba(255, 122, 89, 0.22);
+      --amber: #ff7a59;
+      --amber-glow: rgba(255, 122, 89, 0.5);
+      --text: #faeef2;
+      --muted: #a88d9e;
+      --danger: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.5);
+      --success: #34d399;
+      --cal-hue: 330deg;
+      
+      --color-romain: #38bdf8;
+      --color-amelie: #c084fc;
+
+      --love-pink: #f43f5e;
+      --love-pink-glow: rgba(244, 63, 94, 0.55);
+      --bday-gold: #fbbf24;
+      --bday-glow: rgba(251, 191, 36, 0.5);
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body {
       font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -74,17 +146,12 @@
       transition: background 0.4s ease, color 0.4s ease, filter 0.5s ease;
     }
 
-    /* MODE NUIT AUTOMATIQUE (23h30 - 06h30) */
-    body.night-dim {
-      filter: brightness(0.22) contrast(0.9);
-    }
-    body.night-dim:active, body.night-wake {
-      filter: brightness(1) contrast(1);
-    }
+    body.night-dim { filter: brightness(0.22) contrast(0.9); }
+    body.night-dim:active, body.night-wake { filter: brightness(1) contrast(1); }
 
     .serif { font-family: 'Fraunces', Georgia, serif; }
 
-    /* Overlay Animation Plein Écran */
+    /* Overlay Animation */
     #fx-overlay {
       position: fixed;
       inset: 0;
@@ -115,7 +182,6 @@
     /* Bannières d'alerte */
     .alerts-container { display: flex; flex-direction: column; gap: 10px; }
 
-    /* BANNIÈRE ANNIVERSAIRE DU JOUR */
     #bday-alert {
       display: none;
       background: linear-gradient(135deg, rgba(255, 213, 79, 0.28), rgba(255, 111, 0, 0.22));
@@ -144,7 +210,6 @@
       animation: dangerPulse 1.1s infinite alternate ease-in-out;
     }
 
-    /* ALERTE POUBELLES STROBOSCOPIQUE (LUNDI 16H00 - 23H30) */
     #trash-alert {
       display: none;
       background: linear-gradient(135deg, rgba(255, 20, 20, 0.55), rgba(255, 100, 0, 0.55));
@@ -155,7 +220,6 @@
       gap: 14px;
       animation: trashFlashUltra 0.35s infinite alternate ease-in-out;
     }
-
     @keyframes trashFlashUltra {
       0% {
         box-shadow: 0 0 16px rgba(255, 23, 68, 0.7), inset 0 0 12px rgba(255, 23, 68, 0.4);
@@ -171,7 +235,6 @@
       }
     }
 
-    /* BOUTON FAIT : HARMONIEUX ET INTÉGRÉ AU DESIGN */
     .btn-trash-done {
       background: rgba(20, 16, 26, 0.65);
       backdrop-filter: blur(8px);
@@ -195,9 +258,7 @@
       border-color: var(--success);
       box-shadow: 0 0 16px rgba(48, 209, 88, 0.5);
     }
-    .btn-trash-done:active {
-      transform: scale(0.94);
-    }
+    .btn-trash-done:active { transform: scale(0.94); }
     .btn-trash-done .check-badge {
       width: 18px;
       height: 18px;
@@ -215,11 +276,10 @@
       0% { box-shadow: 0 0 10px var(--danger-glow); border-color: var(--danger); transform: scale(1); }
       100% { box-shadow: 0 0 35px var(--danger-glow); border-color: var(--amber); transform: scale(1.008); }
     }
-
     .alert-icon { font-size: 2.2rem; animation: alertWiggle 0.5s infinite alternate ease-in-out; flex: none; }
     @keyframes alertWiggle { 0% { transform: rotate(-14deg) scale(0.92); } 100% { transform: rotate(14deg) scale(1.14); } }
 
-    /* NOTIFICATION FLOTTANTE CENTRALE POUR MOT DOUX NON LU */
+    /* Pop-up flottant mot doux */
     #floating-love-modal {
       display: none;
       position: fixed;
@@ -238,32 +298,14 @@
       backdrop-filter: blur(16px);
       animation: floatLovePulse 1.2s infinite alternate ease-in-out;
     }
-
     @keyframes floatLovePulse {
-      0% {
-        transform: translate(-50%, -50%) scale(0.98);
-        box-shadow: 0 0 35px rgba(255, 42, 133, 0.7), 0 15px 40px rgba(0, 0, 0, 0.7);
-      }
-      100% {
-        transform: translate(-50%, -50%) scale(1.03);
-        box-shadow: 0 0 75px rgba(255, 64, 129, 1), 0 30px 70px rgba(0, 0, 0, 0.85);
-      }
+      0% { transform: translate(-50%, -50%) scale(0.98); box-shadow: 0 0 35px rgba(255, 42, 133, 0.7); }
+      100% { transform: translate(-50%, -50%) scale(1.03); box-shadow: 0 0 75px rgba(255, 64, 129, 1); }
     }
-
     .floating-love-content { display: flex; align-items: center; gap: 20px; }
-    .floating-love-heart {
-      font-size: 3.4rem;
-      animation: heartbeatBig 0.8s infinite alternate ease-in-out;
-      flex: none;
-    }
+    .floating-love-heart { font-size: 3.4rem; animation: heartbeatBig 0.8s infinite alternate ease-in-out; flex: none; }
     @keyframes heartbeatBig { 0% { transform: scale(0.92); } 100% { transform: scale(1.25); } }
-    .floating-love-title {
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: #fff;
-      line-height: 1.2;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
-    }
+    .floating-love-title { font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1.2; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
     .floating-love-sub { font-size: 0.95rem; color: #ffe4f0; margin-top: 6px; font-weight: 600; }
 
     /* En-tête */
@@ -289,23 +331,12 @@
       50% { transform: translateY(-4px) rotate(0.4deg); }
       100% { transform: translateY(2px) rotate(-0.4deg); }
     }
-
-    .heart-anim {
-      transform-origin: 38px 9px;
-      animation: heartBeatPulse 1.4s ease-in-out infinite;
-    }
+    .heart-anim { transform-origin: 38px 9px; animation: heartBeatPulse 1.4s ease-in-out infinite; }
     @keyframes heartBeatPulse {
-      0% { transform: scale(1); }
-      14% { transform: scale(1.22); }
-      28% { transform: scale(1); }
-      42% { transform: scale(1.15); }
-      70% { transform: scale(1); }
+      0% { transform: scale(1); } 14% { transform: scale(1.22); } 28% { transform: scale(1); }
+      42% { transform: scale(1.15); } 70% { transform: scale(1); }
     }
-
-    .cat-tail {
-      transform-origin: 180px 67px;
-      animation: tailWag 2.4s ease-in-out infinite alternate;
-    }
+    .cat-tail { transform-origin: 180px 67px; animation: tailWag 2.4s ease-in-out infinite alternate; }
     @keyframes tailWag { 0% { transform: rotate(0deg); } 100% { transform: rotate(14deg); } }
 
     .title-area h1 { font-size: 1.85rem; color: var(--text); line-height: 1.1; white-space: nowrap; }
@@ -341,13 +372,14 @@
       font-weight: 600;
     }
 
-    .header-right {
+    .header-right { display: flex; align-items: center; gap: 14px; flex: none; }
+
+    /* Profils et Statuts Humeurs */
+    .profiles-and-moods {
       display: flex;
       align-items: center;
-      gap: 16px;
-      flex: none;
+      gap: 8px;
     }
-
     .profile-switch {
       display: flex;
       background: rgba(255, 255, 255, 0.04);
@@ -382,12 +414,34 @@
       border-color: var(--color-amelie);
       box-shadow: 0 0 10px rgba(244, 143, 177, 0.35);
     }
-    .profile-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: currentColor;
+    .profile-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+    /* Badges Humeurs */
+    .mood-badges-wrap {
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
+    .mood-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 4px 9px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+      color: var(--text);
+    }
+    .mood-chip:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: var(--amber);
+    }
+    .mood-chip.romain { border-color: rgba(79, 195, 247, 0.35); }
+    .mood-chip.amelie { border-color: rgba(244, 143, 177, 0.35); }
 
     .clock-box {
       display: flex;
@@ -407,10 +461,7 @@
       0% { text-shadow: 0 0 10px var(--amber-glow); }
       100% { text-shadow: 0 0 24px var(--amber-glow), 0 0 8px rgba(255, 255, 255, 0.4); }
     }
-    .clock-box:hover {
-      background: rgba(255, 255, 255, 0.08);
-      transform: scale(1.03);
-    }
+    .clock-box:hover { background: rgba(255, 255, 255, 0.08); transform: scale(1.03); }
     .clock-box:active { transform: scale(0.96); }
     .clock-dots { animation: blinkDots 1s step-start infinite; }
     @keyframes blinkDots { 50% { opacity: 0.2; } }
@@ -468,11 +519,7 @@
       gap: 4px;
       transition: all 0.2s ease;
     }
-    .btn-dice:hover {
-      background: var(--amber-glow);
-      border-color: var(--amber);
-      color: var(--amber);
-    }
+    .btn-dice:hover { background: var(--amber-glow); border-color: var(--amber); color: var(--amber); }
     .btn-dice:active { transform: scale(0.92); }
 
     /* Encart Mot Doux */
@@ -489,11 +536,7 @@
       transition: all 0.25s ease;
       position: relative;
     }
-    .love-card:hover {
-      background: rgba(255, 255, 255, 0.04);
-      border-color: var(--amber);
-    }
-
+    .love-card:hover { background: rgba(255, 255, 255, 0.04); border-color: var(--amber); }
     .love-card.unread {
       background: linear-gradient(135deg, rgba(255, 42, 133, 0.18), rgba(244, 143, 177, 0.12));
       border: 1.5px solid var(--love-pink);
@@ -503,30 +546,14 @@
       0% { box-shadow: 0 0 8px var(--love-pink-glow); border-color: var(--love-pink); transform: scale(1); }
       100% { box-shadow: 0 0 26px var(--love-pink-glow); border-color: #ff85be; transform: scale(1.01); }
     }
-
-    .love-icon {
-      font-size: 1.5rem;
-      flex: none;
-      display: inline-block;
-      animation: iconFloat 3s ease-in-out infinite alternate;
-    }
-    @keyframes iconFloat {
-      0% { transform: translateY(0) rotate(0deg); }
-      100% { transform: translateY(-3px) rotate(6deg); }
-    }
+    .love-icon { font-size: 1.5rem; flex: none; display: inline-block; animation: iconFloat 3s ease-in-out infinite alternate; }
+    @keyframes iconFloat { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-3px) rotate(6deg); } }
     .love-card.unread .love-icon { animation: heartBeat 0.9s infinite alternate; }
     @keyframes heartBeat { 0% { transform: scale(0.95); } 100% { transform: scale(1.22); } }
 
     .love-text-preview { flex: 1; min-width: 0; }
     .love-sender-name { font-size: 0.86rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-    .love-snippet {
-      font-size: 0.8rem;
-      color: var(--muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-top: 2px;
-    }
+    .love-snippet { font-size: 0.8rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
 
     .love-actions-btns { display: flex; align-items: center; gap: 6px; flex: none; }
     .btn-pill {
@@ -542,14 +569,7 @@
     .btn-pill:hover { background: rgba(255, 255, 255, 0.08); }
 
     /* Recettes Jow */
-    .jow-list {
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-      max-height: 220px;
-      overflow-y: auto;
-      padding-right: 4px;
-    }
+    .jow-list { display: flex; flex-direction: column; gap: 7px; max-height: 220px; overflow-y: auto; padding-right: 4px; }
     .jow-item {
       display: flex;
       align-items: center;
@@ -564,7 +584,6 @@
     .jow-item:active { transform: scale(0.97); }
     .jow-item.done { opacity: 0.45; background: rgba(255, 255, 255, 0.01); border-color: transparent; }
     .jow-item.done .jow-name { text-decoration: line-through; }
-    
     .jow-item.picked-dish {
       border-color: var(--amber) !important;
       background: var(--amber-glow) !important;
@@ -576,7 +595,6 @@
     .jow-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
     .jow-icon { font-size: 1.3rem; flex: none; }
     .jow-name { font-size: 0.94rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    
     .jow-right-meta { display: flex; align-items: center; gap: 6px; }
     .badge {
       font-size: 0.72rem;
@@ -643,16 +661,8 @@
       line-height: 1.1;
       text-transform: uppercase;
     }
-    .who-badge.romain {
-      background: var(--color-romain);
-      color: #0b1f2e;
-      box-shadow: 0 0 6px rgba(79, 195, 247, 0.4);
-    }
-    .who-badge.amelie {
-      background: var(--color-amelie);
-      color: #2b0b18;
-      box-shadow: 0 0 6px rgba(244, 143, 177, 0.4);
-    }
+    .who-badge.romain { background: var(--color-romain); color: #0b1f2e; box-shadow: 0 0 6px rgba(79, 195, 247, 0.4); }
+    .who-badge.amelie { background: var(--color-amelie); color: #2b0b18; box-shadow: 0 0 6px rgba(244, 143, 177, 0.4); }
 
     .med-check.late {
       background: rgba(255, 69, 58, 0.32) !important;
@@ -660,12 +670,9 @@
       color: #ff9f0a !important;
       animation: medBlink 0.85s infinite alternate;
     }
-    @keyframes medBlink {
-      0% { box-shadow: 0 0 4px var(--danger-glow); transform: scale(0.96); }
-      100% { box-shadow: 0 0 16px rgba(255, 69, 58, 0.95); transform: scale(1.05); }
-    }
+    @keyframes medBlink { 0% { box-shadow: 0 0 4px var(--danger-glow); transform: scale(0.96); } 100% { box-shadow: 0 0 16px rgba(255, 69, 58, 0.95); transform: scale(1.05); } }
 
-    /* Agenda stylisé */
+    /* Agenda */
     .calendar-container {
       flex: 1;
       width: 100%;
@@ -709,6 +716,8 @@
       display: flex;
       flex-direction: column;
       gap: 14px;
+      max-height: 90vh;
+      overflow-y: auto;
     }
     .modal-box textarea {
       width: 100%;
@@ -732,33 +741,33 @@
       cursor: pointer;
     }
 
-    /* Menu Caché : Thèmes + Anniversaires */
     .settings-section-title {
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: var(--amber);
-      margin-top: 6px;
+      margin-top: 4px;
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
+    /* Grille des 5 Thèmes */
     .theme-options-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 8px;
     }
     .theme-card-btn {
       background: rgba(255, 255, 255, 0.03);
-      border: 2px solid var(--card-border);
-      border-radius: 14px;
-      padding: 12px;
+      border: 1.5px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px 8px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       cursor: pointer;
       color: var(--text);
       transition: all 0.2s ease;
@@ -768,22 +777,18 @@
       border-color: var(--amber);
       background: var(--amber-glow);
     }
-    .theme-preview-dots { display: flex; gap: 6px; }
-    .theme-preview-dots span { width: 12px; height: 12px; border-radius: 50%; }
+    .theme-preview-dots { display: flex; gap: 4px; }
+    .theme-preview-dots span { width: 10px; height: 10px; border-radius: 50%; }
 
-    /* Formulaire ajout anniversaire */
-    .bday-form {
-      display: grid;
-      grid-template-columns: 1.2fr 0.9fr auto;
-      gap: 8px;
-    }
+    /* Formulaire Anniversaires */
+    .bday-form { display: grid; grid-template-columns: 1.2fr 0.9fr auto; gap: 8px; }
     .bday-input {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--card-border);
       border-radius: 10px;
       padding: 8px 10px;
       color: var(--text);
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       font-family: inherit;
       outline: none;
     }
@@ -793,7 +798,7 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
-      max-height: 140px;
+      max-height: 120px;
       overflow-y: auto;
       padding-right: 4px;
     }
@@ -805,7 +810,7 @@
       border: 1px solid var(--card-border);
       border-radius: 10px;
       padding: 6px 10px;
-      font-size: 0.85rem;
+      font-size: 0.84rem;
     }
     .bday-item-del {
       background: transparent;
@@ -815,6 +820,52 @@
       font-size: 0.95rem;
       padding: 2px 6px;
     }
+
+    /* Grille de sélection d'humeur */
+    .mood-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .mood-choice-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+    }
+    .mood-choice-btn:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--amber); }
+    .mood-choice-btn:active { transform: scale(0.96); }
+
+    /* Liste Micro-Tâches */
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+    .task-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .task-info { display: flex; flex-direction: column; gap: 2px; }
+    .task-title { font-weight: 700; font-size: 0.92rem; }
+    .task-status { font-size: 0.78rem; color: var(--muted); }
+    .task-status.overdue { color: #ff9f0a; font-weight: 600; }
 
     .big-message-body {
       background: rgba(255, 255, 255, 0.03);
@@ -871,10 +922,7 @@
       box-shadow: 0 0 8px rgba(48, 209, 88, 0.6);
       transition: background 0.3s, box-shadow 0.3s;
     }
-    #sync-status.offline {
-      background: var(--danger);
-      box-shadow: 0 0 8px rgba(255, 69, 58, 0.6);
-    }
+    #sync-status.offline { background: var(--danger); box-shadow: 0 0 8px rgba(255, 69, 58, 0.6); }
 
     @media (max-width: 900px) {
       .dashboard-grid { grid-template-columns: 1fr; }
@@ -891,19 +939,19 @@
     <div id="fx-content"></div>
   </div>
 
-  <!-- NOTIFICATION FLOTTANTE CENTRALE POUR MOT DOUX NON LU -->
+  <!-- NOTIFICATION FLOTTANTE MOT DOUX NON LU -->
   <div id="floating-love-modal">
     <div class="floating-love-content">
       <div class="floating-love-heart">💌</div>
       <div style="flex: 1;">
-        <div class="floating-love-title" id="floating-love-title">Nouveau mot doux de Romain ❤️</div>
+        <div class="floating-love-title" id="floating-love-title">Nouveau mot doux ❤️</div>
         <div class="floating-love-sub">Touchez l'écran pour le lire en grand ✨</div>
       </div>
     </div>
   </div>
 
   <div class="alerts-container">
-    <!-- ALERTE ANNIVERSAIRE LE JOUR J SEULEMENT -->
+    <!-- ALERTE ANNIVERSAIRE -->
     <div id="bday-alert">
       <div class="bday-icon">🎂</div>
       <div style="flex: 1;">
@@ -916,6 +964,7 @@
       </div>
     </div>
 
+    <!-- ALERTE MÉDICAMENT INKY -->
     <div id="med-alert">
       <div class="alert-icon">💊</div>
       <div style="flex: 1;">
@@ -928,7 +977,7 @@
       </div>
     </div>
 
-    <!-- ALERTE POUBELLE ULTRA-FLASH (LUNDI DE 16H00 A 23H30 STRICT) -->
+    <!-- ALERTE POUBELLE ULTRA-FLASH (LUNDI DE 16H00 A 23H30) -->
     <div id="trash-alert">
       <div class="alert-icon">🗑️</div>
       <div style="flex: 1;">
@@ -1017,17 +1066,30 @@
     </div>
 
     <div class="header-right">
-      <div class="profile-switch">
-        <button id="btn-romain" class="profile-btn active romain" type="button">
-          <span class="profile-dot"></span> Romain
-        </button>
-        <button id="btn-amelie" class="profile-btn amelie" type="button">
-          <span class="profile-dot"></span> Amélie
-        </button>
+      <div class="profiles-and-moods">
+        <!-- Switch Profils -->
+        <div class="profile-switch">
+          <button id="btn-romain" class="profile-btn active romain" type="button">
+            <span class="profile-dot"></span> Romain
+          </button>
+          <button id="btn-amelie" class="profile-btn amelie" type="button">
+            <span class="profile-dot"></span> Amélie
+          </button>
+        </div>
+
+        <!-- Badges Humeurs Interactifs -->
+        <div class="mood-badges-wrap">
+          <div class="mood-chip romain" id="mood-chip-romain" title="Changer l'humeur de Romain">
+            <span>⚡</span> <span id="mood-text-romain">En forme</span>
+          </div>
+          <div class="mood-chip amelie" id="mood-chip-amelie" title="Changer l'humeur d'Amélie">
+            <span>☕</span> <span id="mood-text-amelie">Posée</span>
+          </div>
+        </div>
       </div>
 
       <!-- HORLOGE / DÉCLENCHEUR DU MENU CACHÉ -->
-      <div class="serif clock-box" id="btn-theme-trigger" title="Ouvrir le menu de configuration du cocon">
+      <div class="serif clock-box" id="btn-theme-trigger" title="Ouvrir les réglages du cocon">
         <span id="clk-h">00</span><span class="clock-dots">:</span><span id="clk-m">00</span>
       </div>
     </div>
@@ -1038,7 +1100,10 @@
       <div class="card" id="card-inky">
         <div class="card-head">
           <h2 class="serif">🐕 Traitement Inky</h2>
-          <span style="font-size: 0.78rem; color: var(--muted);">Reset auto chaque lundi à 00h01</span>
+          <div class="head-actions-wrap">
+            <button class="btn-dice" id="btn-open-tasks" title="Ouvrir les micro-tâches du foyer">📋 Entretien</button>
+            <span style="font-size: 0.76rem; color: var(--muted); margin-left: 4px;">Reset lun 00h01</span>
+          </div>
         </div>
         <div class="med-week" id="med-week"></div>
       </div>
@@ -1089,12 +1154,12 @@
     </div>
   </div>
 
-  <!-- MENU CACHÉ GÉNÉRAL (THÈMES + GESTION DES ANNIVERSAIRES) -->
+  <!-- MENU CACHÉ DE L'HORLOGE (5 THÈMES + ANNIVERSAIRES) -->
   <div class="modal-overlay" id="modal-theme">
     <div class="modal-box">
       <h3 class="serif" style="font-size: 1.25rem; color: var(--amber);">⚙️ Réglages du cocon</h3>
 
-      <!-- 1. Thème d'ambiance -->
+      <!-- Sélection des 5 Thèmes -->
       <div class="settings-section-title">🎨 Ambiance visuelle</div>
       <div class="theme-options-grid">
         <button class="theme-card-btn" id="theme-btn-default" type="button">
@@ -1103,8 +1168,7 @@
             <span style="background: #ffb454;"></span>
             <span style="background: #f48fb1;"></span>
           </div>
-          <div style="font-weight: 700; font-size: 0.92rem;">Ambré Cocon</div>
-          <div style="font-size: 0.74rem; color: var(--muted);">Original doux</div>
+          <div style="font-weight: 700; font-size: 0.84rem;">Ambré Cocon</div>
         </button>
 
         <button class="theme-card-btn" id="theme-btn-halloween" type="button">
@@ -1113,15 +1177,41 @@
             <span style="background: #ff6f00;"></span>
             <span style="background: #e040fb;"></span>
           </div>
-          <div style="font-weight: 700; font-size: 0.92rem;">Nuit d'Halloween</div>
-          <div style="font-size: 0.74rem; color: var(--muted);">Noir, violet & orange</div>
+          <div style="font-weight: 700; font-size: 0.84rem;">Halloween</div>
+        </button>
+
+        <button class="theme-card-btn" id="theme-btn-cyberpunk" type="button">
+          <div class="theme-preview-dots">
+            <span style="background: #0f172a; border: 1px solid #00f0ff;"></span>
+            <span style="background: #00f0ff;"></span>
+            <span style="background: #ff007f;"></span>
+          </div>
+          <div style="font-weight: 700; font-size: 0.84rem;">Cyberpunk</div>
+        </button>
+
+        <button class="theme-card-btn" id="theme-btn-emerald" type="button">
+          <div class="theme-preview-dots">
+            <span style="background: #10221a; border: 1px solid #e6c387;"></span>
+            <span style="background: #e6c387;"></span>
+            <span style="background: #4ade80;"></span>
+          </div>
+          <div style="font-weight: 700; font-size: 0.84rem;">Forêt Zen</div>
+        </button>
+
+        <button class="theme-card-btn" id="theme-btn-riviera" type="button">
+          <div class="theme-preview-dots">
+            <span style="background: #1d1022; border: 1px solid #ff7a59;"></span>
+            <span style="background: #ff7a59;"></span>
+            <span style="background: #c084fc;"></span>
+          </div>
+          <div style="font-weight: 700; font-size: 0.84rem;">Riviera</div>
         </button>
       </div>
 
-      <!-- 2. Gestion des anniversaires -->
+      <!-- Anniversaires -->
       <div class="settings-section-title">🎂 Anniversaires des proches</div>
       <p style="font-size: 0.78rem; color: var(--muted); margin-top: -6px;">
-        Une alerte apparaîtra sur l'écran uniquement le jour J.
+        Alerte visible uniquement le jour J.
       </p>
 
       <div class="bday-form">
@@ -1136,6 +1226,44 @@
 
       <div class="modal-actions" style="margin-top: 6px;">
         <button class="btn-secondary" id="btn-close-theme">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL SÉLECTION D'HUMEUR / STATUT -->
+  <div class="modal-overlay" id="modal-mood">
+    <div class="modal-box">
+      <h3 class="serif" id="mood-modal-title" style="font-size: 1.25rem; color: var(--amber);">Comment va... ?</h3>
+      <div class="mood-picker-grid" id="mood-picker-grid">
+        <button class="mood-choice-btn" data-icon="⚡" data-text="En forme"><span>⚡</span> Pleine énergie</button>
+        <button class="mood-choice-btn" data-icon="☕" data-text="Posé(e)"><span>☕</span> Posé & café</button>
+        <button class="mood-choice-btn" data-icon="🥱" data-text="Fatigué(e)"><span>🥱</span> Besoin de repos</button>
+        <button class="mood-choice-btn" data-icon="🧘" data-text="Détente"><span>🧘</span> Détente & calme</button>
+        <button class="mood-choice-btn" data-icon="🎧" data-text="Dans sa bulle"><span>🎧</span> Dans ma bulle</button>
+        <button class="mood-choice-btn" data-icon="😋" data-text="Faim"><span>😋</span> Faim de loup</button>
+        <button class="mood-choice-btn" data-icon="❤️" data-text="Câlin"><span>❤️</span> Câlin & love</button>
+        <button class="mood-choice-btn" data-icon="🤯" data-text="Chargé(e)"><span>🤯</span> Journée chargée</button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-close-mood">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL MICRO-TÂCHES CYCLIQUES DU FOYER -->
+  <div class="modal-overlay" id="modal-tasks">
+    <div class="modal-box">
+      <h3 class="serif" style="font-size: 1.25rem; color: var(--amber);">📋 Entretien & Tâches cycliques</h3>
+      <p style="font-size: 0.82rem; color: var(--muted); margin-top: -6px;">
+        Suivi des corvées périodiques du cocon :
+      </p>
+      
+      <div class="task-list" id="task-list-box">
+        <!-- Rempli en JS -->
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-close-tasks">Fermer</button>
       </div>
     </div>
   </div>
@@ -1231,9 +1359,9 @@
     });
 
     /* ========================================================
-       1. DÉCOMPTE DE JOURS EN COUPLE (DEPUIS LE 22/06/2025)
+       1. DÉCOMPTE DE COUPLE (DEPUIS LE 22/06/2025)
        ======================================================== */
-    const START_DATE = new Date(2025, 5, 22); // Mois 5 = Juin en JS
+    const START_DATE = new Date(2025, 5, 22);
     function updateCoupleCounter(now) {
       const diffTime = now.getTime() - START_DATE.getTime();
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
@@ -1246,7 +1374,7 @@
     }
 
     /* ========================================================
-       2. PHASE DE LA LUNE (CALCUL ASTRONOMIQUE PUR JS)
+       2. PHASE DE LA LUNE (CALCUL PUR JS)
        ======================================================== */
     function getMoonPhase(date) {
       let year = date.getFullYear();
@@ -1285,20 +1413,18 @@
     }
 
     /* ========================================================
-       3. GESTION DES ANNIVERSAIRES & ALERTE JOUR J
+       3. GESTION DES ANNIVERSAIRES
        ======================================================== */
     let birthdaysData = {};
 
     function checkBirthdays(now) {
       const curDay = now.getDate();
-      const curMonth = now.getMonth() + 1; // 1-12
-
+      const curMonth = now.getMonth() + 1;
       const matchingNames = [];
 
       Object.keys(birthdaysData).forEach(k => {
         const b = birthdaysData[k];
         if (!b || !b.date) return;
-        // Format YYYY-MM-DD
         const parts = b.date.split('-');
         if (parts.length === 3) {
           const bMonth = parseInt(parts[1], 10);
@@ -1323,7 +1449,6 @@
     function renderBirthdaysList() {
       const box = document.getElementById('bday-list-box');
       box.innerHTML = '';
-
       const keys = Object.keys(birthdaysData);
       if (!keys.length) {
         box.innerHTML = '<div style="color:var(--muted); font-size:0.82rem;">Aucun anniversaire enregistré.</div>';
@@ -1335,7 +1460,6 @@
         if (!b) return;
         const row = document.createElement('div');
         row.className = 'bday-item-row';
-
         const parts = (b.date || '').split('-');
         const dateStr = parts.length === 3 ? `${parts[2]}/${parts[1]}` : b.date;
 
@@ -1356,7 +1480,6 @@
     document.getElementById('btn-add-bday').addEventListener('click', () => {
       const nameInput = document.getElementById('bday-name-input');
       const dateInput = document.getElementById('bday-date-input');
-
       const name = nameInput.value.trim();
       const date = dateInput.value;
 
@@ -1367,20 +1490,124 @@
 
       const newRef = push(ref(db, 'birthdays'));
       set(newRef, { name, date });
-
       nameInput.value = '';
       dateInput.value = '';
     });
 
     /* ========================================================
-       4. MODE NUIT AUTOMATIQUE (23h30 - 06h30)
+       4. GESTION DES HUMEURS / STATUTS EN 1 CLIC
+       ======================================================== */
+    let targetMoodProfile = 'Romain';
+    const modalMood = document.getElementById('modal-mood');
+    const moodModalTitle = document.getElementById('mood-modal-title');
+
+    document.getElementById('mood-chip-romain').addEventListener('click', () => {
+      targetMoodProfile = 'Romain';
+      moodModalTitle.textContent = "Humeur actuelle de Romain";
+      modalMood.classList.add('open');
+    });
+
+    document.getElementById('mood-chip-amelie').addEventListener('click', () => {
+      targetMoodProfile = 'Amélie';
+      moodModalTitle.textContent = "Humeur actuelle d'Amélie";
+      modalMood.classList.add('open');
+    });
+
+    document.getElementById('btn-close-mood').addEventListener('click', () => {
+      modalMood.classList.remove('open');
+    });
+
+    document.querySelectorAll('.mood-choice-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const icon = btn.getAttribute('data-icon');
+        const text = btn.getAttribute('data-text');
+        set(ref(db, `user_moods/${targetMoodProfile}`), { icon, text, at: Date.now() });
+        modalMood.classList.remove('open');
+      });
+    });
+
+    function renderMoods(data) {
+      if (!data) return;
+      if (data.Romain) {
+        document.getElementById('mood-chip-romain').querySelector('span:first-child').textContent = data.Romain.icon || '⚡';
+        document.getElementById('mood-text-romain').textContent = data.Romain.text || 'En forme';
+      }
+      if (data.Amélie) {
+        document.getElementById('mood-chip-amelie').querySelector('span:first-child').textContent = data.Amélie.icon || '☕';
+        document.getElementById('mood-text-amelie').textContent = data.Amélie.text || 'Posée';
+      }
+    }
+
+    /* ========================================================
+       5. MICRO-TÂCHES CYCLIQUES DU FOYER
+       ======================================================== */
+    const DEFAULT_TASKS = [
+      { id: 'litter', title: 'Litière du chat', freqDays: 3, icon: '🐱' },
+      { id: 'plants', title: 'Arrosage des plantes', freqDays: 6, icon: '🌿' },
+      { id: 'sheets', title: 'Changement des draps', freqDays: 14, icon: '🛏️' },
+      { id: 'coffee', title: 'Détartrage cafetière', freqDays: 30, icon: '☕' },
+      { id: 'filters', title: 'Nettoyage des filtres', freqDays: 45, icon: '💨' }
+    ];
+
+    let tasksData = {};
+    const modalTasks = document.getElementById('modal-tasks');
+    const taskListBox = document.getElementById('task-list-box');
+
+    document.getElementById('btn-open-tasks').addEventListener('click', () => {
+      renderTasks();
+      modalTasks.classList.add('open');
+    });
+
+    document.getElementById('btn-close-tasks').addEventListener('click', () => {
+      modalTasks.classList.remove('open');
+    });
+
+    function renderTasks() {
+      taskListBox.innerHTML = '';
+      const now = Date.now();
+
+      DEFAULT_TASKS.forEach(t => {
+        const entry = tasksData[t.id] || {};
+        const lastDone = entry.at || (now - t.freqDays * 86400000);
+        const daysAgo = Math.floor((now - lastDone) / 86400000);
+        const who = entry.by || '';
+
+        const card = document.createElement('div');
+        card.className = 'task-card';
+
+        const isOverdue = daysAgo >= t.freqDays;
+
+        card.innerHTML = `
+          <div class="task-info">
+            <span class="task-title">${t.icon} ${t.title}</span>
+            <span class="task-status ${isOverdue ? 'overdue' : ''}">
+              ${daysAgo === 0 ? "Fait aujourd'hui" : `Il y a ${daysAgo} jour${daysAgo > 1 ? 's' : ''}`}
+              ${who ? `(par ${who})` : ''} • tous les ${t.freqDays}j
+            </span>
+          </div>
+          <button class="btn-action" data-task="${t.id}" style="padding: 6px 12px; border-radius: 10px;">✓ Fait</button>
+        `;
+
+        card.querySelector('button').addEventListener('click', () => {
+          set(ref(db, `household_tasks/${t.id}`), {
+            at: Date.now(),
+            by: currentProfile
+          });
+          triggerFullScreenFX('jow');
+        });
+
+        taskListBox.appendChild(card);
+      });
+    }
+
+    /* ========================================================
+       6. MODE NUIT AUTOMATIQUE (23h30 - 06h30)
        ======================================================== */
     let nightWakeTimeout = null;
     function checkNightMode(now) {
       const hour = now.getHours();
       const min = now.getMinutes();
       const totalMins = hour * 60 + min;
-
       const isNight = totalMins >= 1410 || totalMins < 390;
 
       if (isNight) {
@@ -1401,7 +1628,7 @@
     });
 
     /* ========================================================
-       5. MENU CACHÉ GÉNÉRAL (THÈMES + ANNIVERSAIRES)
+       7. MENU DES 5 THÈMES DESIGN
        ======================================================== */
     let currentTheme = localStorage.getItem('cocon_theme') || 'default';
 
@@ -1410,8 +1637,11 @@
       document.documentElement.setAttribute('data-theme', themeName);
       localStorage.setItem('cocon_theme', themeName);
 
-      document.getElementById('theme-btn-default').classList.toggle('selected', themeName === 'default');
-      document.getElementById('theme-btn-halloween').classList.toggle('selected', themeName === 'halloween');
+      const allBtns = ['default', 'halloween', 'cyberpunk', 'emerald', 'riviera'];
+      allBtns.forEach(t => {
+        const el = document.getElementById(`theme-btn-${t}`);
+        if (el) el.classList.toggle('selected', themeName === t);
+      });
     }
 
     applyTheme(currentTheme);
@@ -1426,12 +1656,8 @@
       modalTheme.classList.remove('open');
     });
 
-    document.getElementById('theme-btn-default').addEventListener('click', () => {
-      applyTheme('default');
-    });
-
-    document.getElementById('theme-btn-halloween').addEventListener('click', () => {
-      applyTheme('halloween');
+    ['default', 'halloween', 'cyberpunk', 'emerald', 'riviera'].forEach(t => {
+      document.getElementById(`theme-btn-${t}`).addEventListener('click', () => applyTheme(t));
     });
 
     /* ========================================================
@@ -1544,7 +1770,7 @@
       return target.getFullYear() + '_W' + Math.ceil((firstThursday - target) / 604800000);
     }
 
-    /* ALERTE POUBELLES STROBOSCOPIQUE : LUNDI 16H00 A 23H30 */
+    /* ALERTE POUBELLES (LUNDI 16H00 A 23H30) */
     function checkTrash(now) {
       const day = now.getDay();
       const hour = now.getHours();
@@ -1754,7 +1980,7 @@
       }
     });
 
-    /* GESTION DES MOTS DOUX & NOTIFICATION CENTRALE FLOTTANTE */
+    /* GESTION DES MOTS DOUX & NOTIFICATION CENTRALE */
     let allNotes = {};
     let activeUnreadNote = null;
 
@@ -1821,9 +2047,7 @@
     }
 
     floatingLoveModal.addEventListener('click', () => {
-      if (activeUnreadNote) {
-        openNoteInBig(activeUnreadNote);
-      }
+      if (activeUnreadNote) openNoteInBig(activeUnreadNote);
     });
 
     loveCardTrigger.addEventListener('click', () => {
@@ -1838,15 +2062,11 @@
     checkMarkRead.addEventListener('change', () => {
       if (checkMarkRead.checked && activeUnreadNote) {
         set(ref(db, `love_notes/${activeUnreadNote.id}/read`), true);
-        setTimeout(() => {
-          modalReadLove.classList.remove('open');
-        }, 350);
+        setTimeout(() => { modalReadLove.classList.remove('open'); }, 350);
       }
     });
 
-    btnCloseReadLove.addEventListener('click', () => {
-      modalReadLove.classList.remove('open');
-    });
+    btnCloseReadLove.addEventListener('click', () => { modalReadLove.classList.remove('open'); });
 
     btnNewNote.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1855,9 +2075,7 @@
       writeLoveText.focus();
     });
 
-    btnCloseWriteLove.addEventListener('click', () => {
-      modalWriteLove.classList.remove('open');
-    });
+    btnCloseWriteLove.addEventListener('click', () => { modalWriteLove.classList.remove('open'); });
 
     btnSendLove.addEventListener('click', () => {
       const text = writeLoveText.value.trim();
@@ -1903,9 +2121,7 @@
       modalArchive.classList.add('open');
     });
 
-    btnCloseArchive.addEventListener('click', () => {
-      modalArchive.classList.remove('open');
-    });
+    btnCloseArchive.addEventListener('click', () => { modalArchive.classList.remove('open'); });
 
     /* MODAL JOW */
     const modal = document.getElementById('modal');
@@ -1916,9 +2132,7 @@
       jowPaste.focus();
     });
 
-    document.getElementById('btn-close-modal').addEventListener('click', () => {
-      modal.classList.remove('open');
-    });
+    document.getElementById('btn-close-modal').addEventListener('click', () => { modal.classList.remove('open'); });
 
     document.getElementById('btn-save-jow').addEventListener('click', () => {
       const text = jowPaste.value.trim();
@@ -1969,6 +2183,15 @@
       birthdaysData = snapshot.val() || {};
       checkBirthdays(new Date());
       renderBirthdaysList();
+    });
+
+    onValue(ref(db, 'user_moods'), snapshot => {
+      renderMoods(snapshot.val());
+    });
+
+    onValue(ref(db, 'household_tasks'), snapshot => {
+      tasksData = snapshot.val() || {};
+      renderTasks();
     });
 
     onValue(ref(db, 'inky_meds'), snapshot => {
