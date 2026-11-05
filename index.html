@@ -142,7 +142,7 @@
 
     .serif { font-family: 'Fraunces', Georgia, serif; }
 
-    /* CONTENEUR CARROUSEL HORIZONTAL */
+    /* CONTENEUR CARROUSEL AVEC TOUCH-ACTION FLUIDE */
     .viewport-slider {
       width: 100vw;
       height: 100vh;
@@ -157,9 +157,10 @@
       display: flex;
       width: 200vw;
       height: calc(100% - 66px);
-      transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
       will-change: transform;
       flex: 1;
+      touch-action: pan-y;
     }
 
     .slide-page {
@@ -170,7 +171,8 @@
       flex-direction: column;
       gap: 8px;
       flex-shrink: 0;
-      transition: opacity 0.4s ease, transform 0.55s ease;
+      transition: opacity 0.35s ease, transform 0.45s ease;
+      touch-action: pan-y;
     }
 
     .slide-page.inactive {
@@ -245,7 +247,7 @@
     }
     @keyframes bdayGlowPulse {
       0% { box-shadow: 0 0 10px var(--bday-glow); transform: scale(0.996); }
-      100% { box-shadow: 0 0 30px var(--bday-glow), inset 0 0 14px rgba(255, 213, 79, 0.25); transform: scale(1.008); }
+      100% { box-shadow: 0 0 30px var(--bday-glow); transform: scale(1.008); }
     }
     .bday-icon { font-size: 1.8rem; flex: none; }
 
@@ -414,7 +416,7 @@
 
     .header-right { display: flex; align-items: center; gap: 12px; flex: none; }
 
-    /* SÉLECTEUR DE PROFILS DÉCOUPLÉ ET FIABLE */
+    /* BOUTONS PROFILS AVEC ÉMOJI DIRECTEMENT EN DESSOUS */
     .profiles-column-switch {
       display: flex;
       align-items: center;
@@ -457,7 +459,6 @@
     }
     .profile-card-btn.active.amelie .p-name-row { color: var(--color-amelie); }
 
-    /* Pastille d'humeur indépendante */
     .p-mood-sub {
       font-size: 0.64rem;
       color: var(--text);
@@ -498,7 +499,7 @@
     .clock-dots { animation: blinkDots 1s step-start infinite; }
     @keyframes blinkDots { 50% { opacity: 0.2; } }
 
-    /* PROPORTIONS ET ALIGNEMENT STRICT (MÊME HAUTEUR EXACTE) */
+    /* ALIGNEMENT DES PANNEAUX ET HAUTEUR ÉGALE */
     .dashboard-grid {
       display: grid;
       grid-template-columns: 1.15fr 0.85fr;
@@ -1155,7 +1156,7 @@
       </div>
 
       <div class="header-right">
-        <!-- BOUTONS PROFILS : Le clic sur le bouton change l'utilisateur actif / Le clic sur l'émoticône change l'humeur -->
+        <!-- BOUTONS PROFILS DÉCOUPLÉS -->
         <div class="profiles-column-switch">
           <div id="btn-romain" class="profile-card-btn active romain">
             <div class="p-name-row">
@@ -1219,7 +1220,6 @@
       <div class="slide-page" id="page-1">
         <div class="dashboard-grid">
           
-          <!-- COLONNE GAUCHE (TRAITEMENT INKY + RECETTES JOW + MOTS DOUX) -->
           <div class="col">
             <div class="card" id="card-inky">
               <div class="card-head">
@@ -1229,7 +1229,6 @@
               <div class="med-week" id="med-week"></div>
             </div>
 
-            <!-- CARTE RECETTES JOW (EXPANDABLE EN PLEINE HAUTEUR) -->
             <div class="card card-jow-expand">
               <div class="card-head">
                 <h2 class="serif">🍽️ Recettes Jow de la semaine</h2>
@@ -1243,7 +1242,6 @@
               </div>
             </div>
 
-            <!-- CARTE MOTS DOUX CALÉE TOUT EN BAS -->
             <div class="card" style="padding: 9px 12px; flex: none;">
               <div class="love-card" id="love-card-trigger">
                 <span class="love-icon" id="love-icon-el">💌</span>
@@ -1259,7 +1257,6 @@
             </div>
           </div>
 
-          <!-- COLONNE DROITE (AGENDA PARTAGÉ) -->
           <div class="col">
             <div class="card" style="height: 100%;">
               <div class="card-head">
@@ -1283,9 +1280,8 @@
       <div class="slide-page inactive" id="page-2">
         <div class="dashboard-grid">
           
-          <!-- COLONNE GAUCHE : PISCINE + GARAGE & VÉHICULES -->
           <div class="col">
-            <!-- CARTE PISCINE -->
+            <!-- PISCINE -->
             <div class="card">
               <div class="card-head">
                 <h2 class="serif">🏊 Suivi Piscine (48 m³)</h2>
@@ -1337,7 +1333,7 @@
               </div>
             </div>
 
-            <!-- CARTE GARAGE & VÉHICULES -->
+            <!-- GARAGE -->
             <div class="card" style="flex: 1;">
               <div class="card-head">
                 <h2 class="serif">🚗 Garage & Véhicules</h2>
@@ -1384,7 +1380,7 @@
             </div>
           </div>
 
-          <!-- COLONNE DROITE : PROJETS & TÂCHES D'ENTRETIEN DU FOYER -->
+          <!-- PROJETS BRICOLAGE & TÂCHES -->
           <div class="col">
             <div class="card" style="height: 100%;">
               <div class="card-head">
@@ -1695,7 +1691,7 @@
       }
     });
 
-    /* NAVIGATION TACTILE SWIPE */
+    /* NAVIGATION TACTILE UNIVERSELLE FIABILISÉE */
     let currentSlide = 0;
     const slidesTrack = document.getElementById('slides-track');
     const page1 = document.getElementById('page-1');
@@ -1720,21 +1716,39 @@
     };
 
     let touchStartX = 0;
+    let touchStartY = 0;
     let touchEndX = 0;
-    const swipeThreshold = 55;
+    let touchEndY = 0;
+    const swipeMinDist = 45;
 
-    window.addEventListener('touchstart', (e) => {
-      if (e.target.closest('.modal-box') || e.target.closest('.jow-list') || e.target.closest('.diy-projects-list')) return;
-      touchStartX = e.changedTouches[0].screenX;
+    // Détection globale sans exclusion des listes internes
+    document.addEventListener('touchstart', (e) => {
+      // Ne bloque que si une modale plein écran est active
+      if (document.querySelector('.modal-overlay.open')) return;
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      touchEndX = touchStartX;
+      touchEndY = touchStartY;
     }, { passive: true });
 
-    window.addEventListener('touchend', (e) => {
-      if (e.target.closest('.modal-box') || e.target.closest('.jow-list') || e.target.closest('.diy-projects-list')) return;
-      touchEndX = e.changedTouches[0].screenX;
-      const diff = touchStartX - touchEndX;
-      if (Math.abs(diff) > swipeThreshold) {
-        if (diff > 0 && currentSlide === 0) goToSlide(1);
-        else if (diff < 0 && currentSlide === 1) goToSlide(0);
+    document.addEventListener('touchmove', (e) => {
+      if (document.querySelector('.modal-overlay.open')) return;
+      touchEndX = e.touches[0].clientX;
+      touchEndY = e.touches[0].clientY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', () => {
+      if (document.querySelector('.modal-overlay.open')) return;
+      const diffX = touchStartX - touchEndX;
+      const diffY = touchStartY - touchEndY;
+
+      // Balayage horizontal franc (plus horizontal que vertical)
+      if (Math.abs(diffX) > swipeMinDist && Math.abs(diffX) > Math.abs(diffY)) {
+        if (diffX > 0 && currentSlide === 0) {
+          goToSlide(1); // Swipe vers la gauche -> Panneau 2
+        } else if (diffX < 0 && currentSlide === 1) {
+          goToSlide(0); // Swipe vers la droite -> Panneau 1
+        }
       }
     }, { passive: true });
 
@@ -2112,17 +2126,15 @@
     const modalMood = document.getElementById('modal-mood');
     const moodModalTitle = document.getElementById('mood-modal-title');
 
-    // Clic sur l'émoticône Romain
     document.getElementById('mood-chip-romain').addEventListener('click', (e) => {
-      e.stopPropagation(); // Évite de changer le profil par accident
+      e.stopPropagation();
       targetMoodProfile = 'Romain';
       moodModalTitle.textContent = "Humeur de Romain";
       modalMood.classList.add('open');
     });
 
-    // Clic sur l'émoticône Amélie
     document.getElementById('mood-chip-amelie').addEventListener('click', (e) => {
-      e.stopPropagation(); // Évite de changer le profil par accident
+      e.stopPropagation();
       targetMoodProfile = 'Amélie';
       moodModalTitle.textContent = "Humeur d'Amélie";
       modalMood.classList.add('open');
