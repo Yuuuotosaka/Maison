@@ -245,7 +245,7 @@
     }
     @keyframes bdayGlowPulse {
       0% { box-shadow: 0 0 10px var(--bday-glow); transform: scale(0.996); }
-      100% { box-shadow: 0 0 30px var(--bday-glow); transform: scale(1.008); }
+      100% { box-shadow: 0 0 30px var(--bday-glow), inset 0 0 14px rgba(255, 213, 79, 0.25); transform: scale(1.008); }
     }
     .bday-icon { font-size: 1.8rem; flex: none; }
 
@@ -414,7 +414,7 @@
 
     .header-right { display: flex; align-items: center; gap: 12px; flex: none; }
 
-    /* NOUVEAUX BOUTONS PROFILS AVEC ÉMOJI DIRECTEMENT EN DESSOUS */
+    /* SÉLECTEUR DE PROFILS DÉCOUPLÉ ET FIABLE */
     .profiles-column-switch {
       display: flex;
       align-items: center;
@@ -426,12 +426,12 @@
       align-items: center;
       justify-content: center;
       background: rgba(255, 255, 255, 0.035);
-      border: 1px solid var(--card-border);
+      border: 1.5px solid var(--card-border);
       border-radius: 12px;
       padding: 4px 10px;
       cursor: pointer;
       transition: all 0.2s ease;
-      min-width: 82px;
+      min-width: 84px;
     }
     .profile-card-btn:active { transform: scale(0.96); }
     .profile-card-btn .p-name-row {
@@ -441,32 +441,40 @@
       font-size: 0.78rem;
       font-weight: 800;
       color: var(--muted);
+      pointer-events: none;
     }
     .profile-card-btn.active.romain {
-      background: rgba(79, 195, 247, 0.15);
+      background: rgba(79, 195, 247, 0.16);
       border-color: var(--color-romain);
       box-shadow: 0 0 10px rgba(79, 195, 247, 0.25);
     }
     .profile-card-btn.active.romain .p-name-row { color: var(--color-romain); }
 
     .profile-card-btn.active.amelie {
-      background: rgba(244, 143, 177, 0.15);
+      background: rgba(244, 143, 177, 0.16);
       border-color: var(--color-amelie);
       box-shadow: 0 0 10px rgba(244, 143, 177, 0.25);
     }
     .profile-card-btn.active.amelie .p-name-row { color: var(--color-amelie); }
 
+    /* Pastille d'humeur indépendante */
     .p-mood-sub {
       font-size: 0.64rem;
       color: var(--text);
-      opacity: 0.85;
-      display: flex;
+      opacity: 0.9;
+      display: inline-flex;
       align-items: center;
       gap: 3px;
-      margin-top: 1px;
-      padding: 1px 5px;
+      margin-top: 2px;
+      padding: 2px 6px;
       border-radius: 6px;
-      background: rgba(255, 255, 255, 0.04);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .p-mood-sub:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: var(--amber);
     }
     .profile-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
@@ -490,9 +498,7 @@
     .clock-dots { animation: blinkDots 1s step-start infinite; }
     @keyframes blinkDots { 50% { opacity: 0.2; } }
 
-    /* ========================================================
-       PROPORTIONS ET ALIGNEMENT STRICT (MÊME HAUTEUR EXACTE)
-       ======================================================== */
+    /* PROPORTIONS ET ALIGNEMENT STRICT (MÊME HAUTEUR EXACTE) */
     .dashboard-grid {
       display: grid;
       grid-template-columns: 1.15fr 0.85fr;
@@ -512,7 +518,6 @@
       min-height: 0;
     }
 
-    /* La carte Jow s'étend pour occuper exactement tout le vide vertical */
     .card-jow-expand {
       flex: 1;
       display: flex;
@@ -1150,25 +1155,25 @@
       </div>
 
       <div class="header-right">
-        <!-- NOUVEAU SÉLECTEUR DE PROFILS AVEC STATUTS ÉMOJIS DIRECTEMENT DESSOUS -->
+        <!-- BOUTONS PROFILS : Le clic sur le bouton change l'utilisateur actif / Le clic sur l'émoticône change l'humeur -->
         <div class="profiles-column-switch">
-          <button id="btn-romain" class="profile-card-btn active romain" type="button">
+          <div id="btn-romain" class="profile-card-btn active romain">
             <div class="p-name-row">
               <span class="profile-dot"></span> Romain
             </div>
-            <div class="p-mood-sub" id="mood-chip-romain" title="Changer l'humeur de Romain">
+            <div class="p-mood-sub" id="mood-chip-romain" title="Changer l'émoticône de Romain">
               <span id="mood-icon-romain">⚡</span> <span id="mood-text-romain">En forme</span>
             </div>
-          </button>
+          </div>
 
-          <button id="btn-amelie" class="profile-card-btn amelie" type="button">
+          <div id="btn-amelie" class="profile-card-btn amelie">
             <div class="p-name-row">
               <span class="profile-dot"></span> Amélie
             </div>
-            <div class="p-mood-sub" id="mood-chip-amelie" title="Changer l'humeur d'Amélie">
+            <div class="p-mood-sub" id="mood-chip-amelie" title="Changer l'émoticône d'Amélie">
               <span id="mood-icon-amelie">☕</span> <span id="mood-text-amelie">Posée</span>
             </div>
-          </button>
+          </div>
         </div>
 
         <div class="serif clock-box" id="btn-theme-trigger" title="Ouvrir les réglages du cocon">
@@ -2102,20 +2107,22 @@
       dateInput.value = '';
     });
 
-    /* HUMEURS / STATUTS DIRECTEMENT SOUS LES PRÉNOMS */
+    /* GESTION DES HUMEURS & SÉLECTION PROFILS SÉPARÉE */
     let targetMoodProfile = 'Romain';
     const modalMood = document.getElementById('modal-mood');
     const moodModalTitle = document.getElementById('mood-modal-title');
 
+    // Clic sur l'émoticône Romain
     document.getElementById('mood-chip-romain').addEventListener('click', (e) => {
-      e.stopPropagation();
+      e.stopPropagation(); // Évite de changer le profil par accident
       targetMoodProfile = 'Romain';
       moodModalTitle.textContent = "Humeur de Romain";
       modalMood.classList.add('open');
     });
 
+    // Clic sur l'émoticône Amélie
     document.getElementById('mood-chip-amelie').addEventListener('click', (e) => {
-      e.stopPropagation();
+      e.stopPropagation(); // Évite de changer le profil par accident
       targetMoodProfile = 'Amélie';
       moodModalTitle.textContent = "Humeur d'Amélie";
       modalMood.classList.add('open');
@@ -2146,7 +2153,35 @@
       }
     }
 
-    /* MICRO-TÂCHES CYCLIQUES (DÉPLACÉES SUR LE PANNEAU 2) */
+    /* GESTION DE LA SÉLECTION DU PROFIL ACTIF */
+    let currentProfile = localStorage.getItem('active_user') || 'Romain';
+    const btnRomain = document.getElementById('btn-romain');
+    const btnAmelie = document.getElementById('btn-amelie');
+
+    function updateProfileUI() {
+      if (currentProfile === 'Romain') {
+        btnRomain.classList.add('active');
+        btnAmelie.classList.remove('active');
+      } else {
+        btnAmelie.classList.add('active');
+        btnRomain.classList.remove('active');
+      }
+    }
+    updateProfileUI();
+
+    btnRomain.addEventListener('click', () => {
+      currentProfile = 'Romain';
+      localStorage.setItem('active_user', 'Romain');
+      updateProfileUI();
+    });
+
+    btnAmelie.addEventListener('click', () => {
+      currentProfile = 'Amélie';
+      localStorage.setItem('active_user', 'Amélie');
+      updateProfileUI();
+    });
+
+    /* MICRO-TÂCHES CYCLIQUES (SUR LE PANNEAU 2) */
     const DEFAULT_TASKS = [
       { id: 'litter', title: 'Litière du chat', freqDays: 3, icon: '🐱' },
       { id: 'plants', title: 'Arrosage des plantes', freqDays: 6, icon: '🌿' },
@@ -2251,34 +2286,6 @@
 
     ['default', 'halloween', 'cyberpunk', 'emerald', 'riviera'].forEach(t => {
       document.getElementById(`theme-btn-${t}`).addEventListener('click', () => applyTheme(t));
-    });
-
-    /* GESTION DES PROFILS */
-    let currentProfile = localStorage.getItem('active_user') || 'Romain';
-    const btnRomain = document.getElementById('btn-romain');
-    const btnAmelie = document.getElementById('btn-amelie');
-
-    function updateProfileUI() {
-      if (currentProfile === 'Romain') {
-        btnRomain.classList.add('active');
-        btnAmelie.classList.remove('active');
-      } else {
-        btnAmelie.classList.add('active');
-        btnRomain.classList.remove('active');
-      }
-    }
-    updateProfileUI();
-
-    btnRomain.addEventListener('click', () => {
-      currentProfile = 'Romain';
-      localStorage.setItem('active_user', 'Romain');
-      updateProfileUI();
-    });
-
-    btnAmelie.addEventListener('click', () => {
-      currentProfile = 'Amélie';
-      localStorage.setItem('active_user', 'Amélie');
-      updateProfileUI();
     });
 
     /* ANIMATIONS PLEIN ÉCRAN */
