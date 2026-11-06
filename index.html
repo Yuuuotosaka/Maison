@@ -181,27 +181,40 @@
       pointer-events: none;
     }
 
-    .slider-dots {
+    .slider-nav {
       position: fixed;
-      bottom: 5px;
       left: 50%;
+      bottom: max(10px, env(safe-area-inset-bottom));
       transform: translateX(-50%);
+      width: min(460px, calc(100vw - 32px));
       display: flex;
-      gap: 8px;
-      z-index: 50;
+      gap: 10px;
+      z-index: 80;
     }
-    .slider-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.2);
-      transition: all 0.3s ease;
+    .slider-nav-btn {
+      flex: 1;
+      min-width: 0;
+      min-height: 46px;
+      padding: 10px 14px;
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      background: var(--card);
+      color: var(--text);
+      font-size: 0.86rem;
+      font-weight: 700;
       cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.22);
+      transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+      touch-action: manipulation;
     }
-    .slider-dot.active {
-      width: 22px;
-      background: var(--amber);
-      box-shadow: 0 0 10px var(--amber-glow);
+    .slider-nav-btn.active {
+      color: var(--amber);
+      border-color: var(--amber);
+      background: var(--amber-glow);
+    }
+    .slider-nav-btn:focus-visible {
+      outline: 2px solid var(--amber);
+      outline-offset: 3px;
     }
 
     /* Overlay FX */
@@ -1410,10 +1423,10 @@
 
     </div>
 
-    <!-- INDICATEURS DE SLIDE TACTILE (DOTS) -->
-    <div class="slider-dots">
-      <div class="slider-dot active" id="dot-1" onclick="goToSlide(0)"></div>
-      <div class="slider-dot" id="dot-2" onclick="goToSlide(1)"></div>
+    <!-- NAVIGATION ENTRE LES DEUX PAGES -->
+    <div class="slider-nav" aria-label="Navigation entre les pages">
+      <button type="button" class="slider-nav-btn active" id="nav-page-1" onclick="goToSlide(0)">← Quotidien</button>
+      <button type="button" class="slider-nav-btn" id="nav-page-2" onclick="goToSlide(1)">Maison & entretien →</button>
     </div>
   </div>
 
@@ -1706,8 +1719,8 @@
     const slidesTrack = document.getElementById('slides-track');
     const page1 = document.getElementById('page-1');
     const page2 = document.getElementById('page-2');
-    const dot1 = document.getElementById('dot-1');
-    const dot2 = document.getElementById('dot-2');
+    const navPage1 = document.getElementById('nav-page-1');
+    const navPage2 = document.getElementById('nav-page-2');
 
     window.goToSlide = function(index) {
       currentSlide = index;
@@ -1715,13 +1728,13 @@
       if (index === 0) {
         page1.classList.remove('inactive');
         page2.classList.add('inactive');
-        dot1.classList.add('active');
-        dot2.classList.remove('active');
+        navPage1.classList.add('active');
+        navPage2.classList.remove('active');
       } else {
         page2.classList.remove('inactive');
         page1.classList.add('inactive');
-        dot2.classList.add('active');
-        dot1.classList.remove('active');
+        navPage2.classList.add('active');
+        navPage1.classList.remove('active');
       }
     };
 
@@ -2208,8 +2221,8 @@
       { id: 'litter', title: 'Litière du chat', freqDays: 3, icon: '🐱' },
       { id: 'plants', title: 'Arrosage des plantes', freqDays: 6, icon: '🌿' },
       { id: 'sheets', title: 'Changement des draps', freqDays: 14, icon: '🛏️' },
-      { id: 'coffee', title: 'Détartrage cafetière', freqDays: 30, icon: '☕' },
-      { id: 'filters', title: 'Nettoyage des filtres', freqDays: 45, icon: '💨' }
+      { id: 'filters', title: 'Nettoyage des filtres', freqDays: 45, icon: '💨' },
+      { id: 'bird_feeder', title: 'Contrôle de la mangeoire à oiseaux', freqDays: 7, icon: '🐦' }
     ];
 
     let tasksData = {};
