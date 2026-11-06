@@ -1018,6 +1018,11 @@
     }
 
     .task-list { display: flex; flex-direction: column; gap: 7px; max-height: 300px; overflow-y: auto; }
+    .task-home-list { flex: 1; min-height: 0; max-height: none; padding-right: 3px; }
+    .task-home-list .task-card { padding: 8px 10px; gap: 7px; }
+    .task-home-list .task-title { font-size: 0.82rem; }
+    .task-home-list .task-status { font-size: 0.68rem; }
+    .task-home-list .btn-action { flex-shrink: 0; }
     .task-card {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--card-border);
@@ -1380,18 +1385,23 @@
             </div>
           </div>
 
-          <!-- PROJETS BRICOLAGE & TÂCHES -->
+          <!-- PROJETS & TÂCHES FOYER -->
           <div class="col">
-            <div class="card" style="height: 100%;">
+            <div class="card" style="flex: 1; min-height: 0;">
               <div class="card-head">
                 <h2 class="serif">🛠️ Projets & Bricolage Maison</h2>
                 <div class="head-actions-wrap">
-                  <button class="btn-dice" id="btn-open-tasks">📋 Tâches foyer</button>
                   <button class="btn-action" id="btn-add-project">➕ Projet</button>
                 </div>
               </div>
-
               <div class="diy-projects-list" id="diy-projects-list"></div>
+            </div>
+
+            <div class="card" style="flex: 0 0 42%; min-height: 0;">
+              <div class="card-head">
+                <h2 class="serif">📋 Tâches foyer</h2>
+              </div>
+              <div class="task-list task-home-list" id="task-home-list"></div>
             </div>
           </div>
 
@@ -2206,16 +2216,15 @@
     const modalTasks = document.getElementById('modal-tasks');
     const taskListBox = document.getElementById('task-list-box');
 
-    document.getElementById('btn-open-tasks').addEventListener('click', () => {
-      renderTasks();
-      modalTasks.classList.add('open');
-    });
     document.getElementById('btn-close-tasks').addEventListener('click', () => {
       modalTasks.classList.remove('open');
     });
 
+    const taskHomeListBox = document.getElementById('task-home-list');
+
     function renderTasks() {
-      taskListBox.innerHTML = '';
+      const taskTargets = [taskListBox, taskHomeListBox].filter(Boolean);
+      taskTargets.forEach(target => { target.innerHTML = ''; });
       const now = Date.now();
 
       DEFAULT_TASKS.forEach(t => {
@@ -2223,27 +2232,28 @@
         const lastDone = entry.at || (now - t.freqDays * 86400000);
         const daysAgo = Math.floor((now - lastDone) / 86400000);
         const who = entry.by || '';
-
-        const card = document.createElement('div');
-        card.className = 'task-card';
         const isOverdue = daysAgo >= t.freqDays;
 
-        card.innerHTML = `
-          <div class="task-info">
-            <span class="task-title">${t.icon} ${t.title}</span>
-            <span class="task-status ${isOverdue ? 'overdue' : ''}">
-              ${daysAgo === 0 ? "Fait aujourd'hui" : `Il y a ${daysAgo} jour${daysAgo > 1 ? 's' : ''}`}
-              ${who ? `(par ${who})` : ''} • tous les ${t.freqDays}j
-            </span>
-          </div>
-          <button class="btn-action" data-task="${t.id}" style="padding: 5px 11px; border-radius: 9px;">✓ Fait</button>
-        `;
+        taskTargets.forEach(target => {
+          const card = document.createElement('div');
+          card.className = 'task-card';
+          card.innerHTML = `
+            <div class="task-info">
+              <span class="task-title">${t.icon} ${t.title}</span>
+              <span class="task-status ${isOverdue ? 'overdue' : ''}">
+                ${daysAgo === 0 ? "Fait aujourd'hui" : `Il y a ${daysAgo} jour${daysAgo > 1 ? 's' : ''}`}
+                ${who ? `(par ${who})` : ''} • tous les ${t.freqDays}j
+              </span>
+            </div>
+            <button class="btn-action" data-task="${t.id}" style="padding: 5px 11px; border-radius: 9px;">✓ Fait</button>
+          `;
 
-        card.querySelector('button').addEventListener('click', () => {
-          set(ref(db, `household_tasks/${t.id}`), { at: Date.now(), by: currentProfile });
-          triggerFullScreenFX('jow');
+          card.querySelector('button').addEventListener('click', () => {
+            set(ref(db, `household_tasks/${t.id}`), { at: Date.now(), by: currentProfile });
+            triggerFullScreenFX('jow');
+          });
+          target.appendChild(card);
         });
-        taskListBox.appendChild(card);
       });
     }
 
