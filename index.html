@@ -1675,7 +1675,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
-    import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
+    import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC2Bi1EjeEZVB6UzQGbeuH5Cqf2ldinZYs",
@@ -1740,25 +1740,22 @@
       }
     }
 
-    /* PHASE DE LA LUNE */
-    function getMoonPhase(date) {
-      let year = date.getFullYear();
-      let month = date.getMonth() + 1;
-      let day = date.getDate();
-      if (month < 3) { year--; month += 12; }
-      let c = 365.25 * year;
-      let e = 30.6 * month;
-      let jd = c + e + day - 694039.09;
-      jd /= 29.5305882;
-      let b = parseInt(jd);
- anti_algues: "Anti-algues (L)"
+    /* DONNÉES PISCINE */
+    const STOCK_NAMES = {
+      chlore: "Chlore (kg)",
+      ph_plus: "pH+ (kg)",
+      ph_moins: "pH- (kg)",
+      tac_plus: "TAC+ (kg)",
+      anti_algues: "Anti-algues (L)"
     };
+    let poolData = { temp: 14, ph: 7.2, cl: 1.2, tac: 100, hivernage: true };
+    let poolStocks = { chlore: 0, ph_plus: 0, ph_moins: 0, tac_plus: 0, anti_algues: 0 };
 
     function renderPoolData() {
-      const t = poolData.temp || 14;
-      const ph = poolData.ph || 7.2;
-      const cl = poolData.cl || 1.2;
-      const tac = poolData.tac || 100;
+      const t = poolData.temp ?? 14;
+      const ph = poolData.ph ?? 7.2;
+      const cl = poolData.cl ?? 1.2;
+      const tac = poolData.tac ?? 100;
       const dateStr = poolData.at ? new Date(poolData.at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) : '--/--';
 
       document.getElementById('pool-temp-val').textContent = `${t}°C`;
