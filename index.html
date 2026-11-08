@@ -1085,6 +1085,18 @@
     }
 
     /* COCOON AMBIANCE: dark luxe + motion, tuned for tablet */
+    .diy-progress-wrap { margin:2px 0 8px; padding:9px 10px; border-radius:10px; background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.045); animation:progressAppear .5s ease both; }
+    .diy-progress-meta { display:flex; justify-content:space-between; align-items:center; font-size:.72rem; color:var(--muted); margin-bottom:7px; }
+    .diy-progress-meta strong { color:var(--amber); font-variant-numeric:tabular-nums; }
+    .diy-progress-track { height:5px; border-radius:99px; background:rgba(255,255,255,.08); overflow:hidden; }
+    .diy-progress-fill { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--amber),var(--success)); box-shadow:0 0 12px var(--amber-glow); transition:width .65s cubic-bezier(.2,.8,.2,1); }
+    .task-complete-pop { animation:taskCompletePop .5s cubic-bezier(.2,.8,.2,1) both; }
+    @keyframes taskCompletePop { 0%{transform:scale(1)} 45%{transform:scale(1.04);filter:brightness(1.5)} 100%{transform:scale(1)} }
+    @keyframes progressAppear { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+    .tap-feedback { animation:tapFeedback .26s ease both; }
+    @keyframes tapFeedback { 0%{filter:brightness(1)} 45%{filter:brightness(1.35);transform:scale(.97)} 100%{filter:brightness(1)} }
+    body.night-dim .screen-saver { background:rgba(1,2,5,.985); }
+
     :root, [data-theme="default"] { --bg:#090b10; --card:#121720; --card-border:rgba(195,215,255,.11); --text:#eef3fb; --muted:#8c9aaf; --amber:#d9b77c; --amber-glow:rgba(217,183,124,.22); }
     body { background-color:#090b10; background-image:radial-gradient(ellipse at 15% 0%,rgba(72,91,130,.15),transparent 42%),radial-gradient(ellipse at 85% 100%,rgba(132,86,120,.10),transparent 38%); }
     body::before { content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.16; background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.09) 0 1px,transparent 1.5px),radial-gradient(circle at 75% 65%,rgba(255,255,255,.06) 0 1px,transparent 1.5px); background-size:47px 53px,67px 71px; animation:ambientDrift 28s linear infinite; }
@@ -2012,17 +2024,20 @@
         const p = diyProjects[k];
         if (!p) return;
         const items = Array.isArray(p.items) ? p.items : [];
+        const doneCount = items.filter(it => !!it.done).length;
+        const progress = items.length ? Math.round(doneCount / items.length * 100) : 0;
+        const projectIcon = items.length && doneCount === items.length ? '🎉' : doneCount ? '🛠️' : '🧰';
         const card = document.createElement('div');
         card.className = 'diy-card';
         const header = document.createElement('button');
         header.type = 'button';
         header.className = 'diy-card-header diy-project-toggle';
         header.setAttribute('aria-expanded', 'false');
-        header.innerHTML = `<span class="diy-card-title">🔨 ${p.title}</span><span class="diy-chevron" aria-hidden="true">▾</span>`;
+        header.innerHTML = `<span class="diy-card-title">${projectIcon} ${p.title}</span><span class="diy-chevron" aria-hidden="true">▾</span>`;
         const details = document.createElement('div');
         details.className = 'diy-project-details';
         details.hidden = true;
-        details.innerHTML = `<div class="head-actions-wrap" style="justify-content:flex-end"><button type="button" class="btn-pill diy-edit">✏️ Modifier</button><button type="button" class="btn-pill diy-delete" style="color:var(--danger)">🗑️ Supprimer</button></div>
+        details.innerHTML = `<div class="diy-progress-wrap"><div class="diy-progress-meta"><span>Avancement</span><strong class="diy-progress-value">${progress}%</strong></div><div class="diy-progress-track"><span class="diy-progress-fill" style="width:${progress}%"></span></div></div><div class="head-actions-wrap" style="justify-content:flex-end"><button type="button" class="btn-pill diy-edit">✏️ Modifier</button><button type="button" class="btn-pill diy-delete" style="color:var(--danger)">🗑️ Supprimer</button></div>
           <div class="diy-items-checklist">${items.map((it,i)=>`<label class="diy-task-row ${it.done?'done':''}"><input type="checkbox" data-idx="${i}" ${it.done?'checked':''}><span>${it.name}</span></label>`).join('')}</div>`;
         header.addEventListener('click', () => {
           const expanded = header.getAttribute('aria-expanded') === 'true';
@@ -2035,6 +2050,13 @@
           if (confirm(`Supprimer le projet "${p.title}" et sa checklist ?`)) remove(ref(db, `diy_projects/${k}`));
         });
         details.querySelectorAll('input[type="checkbox"]').forEach(ch => ch.addEventListener('change', e => {
+          const row=e.target.closest('.diy-task-row'); if(row){row.classList.toggle('done',e.target.checked); if(e.target.checked){row.classList.add('task-complete-pop');setTimeout(()=>row.classList.remove('task-complete-pop'),520);}}
+          const checked=details.querySelectorAll('input[type="checkbox"]:checked').length;
+          const total=details.querySelectorAll('input[type="checkbox"]').length;
+          const pct=total?Math.round(checked/total*100):0;
+          const value=details.querySelector('.diy-progress-value'),fill=details.querySelector('.diy-progress-fill');
+          if(value)value.textContent=pct+'%'; if(fill)fill.style.width=pct+'%';
+          const title=header.querySelector('.diy-card-title'); if(title)title.textContent=(total&&checked===total?'🎉 ':checked?'🛠️ ':'🧰 ')+p.title;
           set(ref(db, `diy_projects/${k}/items/${e.target.dataset.idx}/done`), e.target.checked);
         }));
         card.append(header, details);
