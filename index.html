@@ -1085,6 +1085,48 @@
     }
 
     /* COCOON AMBIANCE: dark luxe + motion, tuned for tablet */
+    /* AMBIANCE VIVANTE : couches lumineuses et mouvements continus */
+    body { background:#070910 !important; overflow-x:hidden; }
+    body::before { z-index:-3 !important; opacity:1 !important; background:
+      radial-gradient(ellipse 42% 34% at 18% 22%,rgba(75,105,171,.23),transparent 72%),
+      radial-gradient(ellipse 36% 42% at 83% 72%,rgba(137,74,123,.18),transparent 74%),
+      radial-gradient(ellipse 28% 30% at 56% 48%,rgba(49,139,151,.12),transparent 75%);
+      background-size:160% 160%; animation:cosmicBackdrop 24s ease-in-out infinite alternate !important; }
+    body::after { content:""; position:fixed; inset:-15%; z-index:-2; pointer-events:none; opacity:.65;
+      background:radial-gradient(ellipse at 30% 60%,rgba(212,177,115,.09),transparent 22%),radial-gradient(ellipse at 70% 25%,rgba(99,140,208,.12),transparent 26%);
+      filter:blur(35px); animation:lightClouds 19s ease-in-out infinite alternate; }
+    @keyframes cosmicBackdrop { 0%{background-position:0% 10%;filter:hue-rotate(0deg)} 50%{background-position:100% 80%;filter:hue-rotate(12deg)} 100%{background-position:25% 100%;filter:hue-rotate(-8deg)} }
+    @keyframes lightClouds { 0%{transform:translate(-5%,3%) scale(.9);opacity:.35} 50%{transform:translate(4%,-4%) scale(1.12);opacity:.8} 100%{transform:translate(-1%,5%) scale(1);opacity:.55} }
+    .ambient-layer { position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:-1; contain:strict; }
+    .ambient-orb { position:absolute; border-radius:50%; filter:blur(34px); opacity:.18; will-change:transform; }
+    .ambient-orb.orb-a { width:34vw;height:34vw;left:-8vw;top:12%;background:radial-gradient(circle,rgba(91,135,226,.75),transparent 68%);animation:orbA 26s ease-in-out infinite alternate; }
+    .ambient-orb.orb-b { width:38vw;height:38vw;right:-12vw;top:48%;background:radial-gradient(circle,rgba(177,94,154,.62),transparent 70%);animation:orbB 31s ease-in-out infinite alternate; }
+    .ambient-orb.orb-c { width:26vw;height:26vw;left:38%;bottom:-12vw;background:radial-gradient(circle,rgba(65,178,176,.52),transparent 70%);animation:orbC 22s ease-in-out infinite alternate; }
+    @keyframes orbA { from{transform:translate3d(0,0,0) scale(.82)} to{transform:translate3d(15vw,18vh,0) scale(1.2)} }
+    @keyframes orbB { from{transform:translate3d(0,0,0) scale(1)} to{transform:translate3d(-18vw,-16vh,0) scale(.82)} }
+    @keyframes orbC { from{transform:translate3d(-8vw,0,0) scale(.8)} to{transform:translate3d(12vw,-22vh,0) scale(1.25)} }
+    .ambient-star { position:absolute; width:3px;height:3px;border-radius:50%;background:#dce8ff;box-shadow:0 0 7px 2px rgba(177,205,255,.42);opacity:0;animation:starFloat var(--dur,9s) ease-in-out var(--delay,0s) infinite; }
+    @keyframes starFloat { 0%{transform:translate3d(0,22px,0) scale(.5);opacity:0} 18%{opacity:var(--peak,.55)} 55%{transform:translate3d(var(--dx,20px),-35px,0) scale(1.2);opacity:var(--peak,.55)} 100%{transform:translate3d(calc(var(--dx,20px)*1.5),-72px,0) scale(.6);opacity:0} }
+    .ambient-line { position:absolute; height:1px;width:24vw; background:linear-gradient(90deg,transparent,rgba(196,213,255,.18),transparent);transform:rotate(-24deg);animation:lineGlide 17s linear infinite;opacity:.25; }
+    @keyframes lineGlide { from{translate:-40vw 20vh} to{translate:140vw -40vh} }
+    /* Base screen gets motion even without interaction */
+    .title-area h1 { animation:titleGlow 5.5s ease-in-out infinite alternate; }
+    @keyframes titleGlow { from{text-shadow:0 0 5px rgba(217,183,124,.08)} to{text-shadow:0 0 18px rgba(217,183,124,.24),0 0 32px rgba(100,130,190,.12)} }
+    .family-svg { animation:familyFloat 3.5s ease-in-out infinite alternate,logoGlow 6s ease-in-out infinite alternate !important; }
+    @keyframes logoGlow { from{filter:drop-shadow(0 2px 8px rgba(217,183,124,.16))} to{filter:drop-shadow(0 3px 16px rgba(217,183,124,.48))} }
+    .header-weather { animation:weatherFloat 5s ease-in-out infinite,weatherGlow 7s ease-in-out infinite alternate !important; }
+    @keyframes weatherGlow { from{box-shadow:0 8px 28px rgba(0,0,0,.18),0 0 0 rgba(217,183,124,0)} to{box-shadow:0 8px 30px rgba(0,0,0,.25),0 0 18px rgba(217,183,124,.11)} }
+    .diy-card,.task-card,.panel-card,.card { animation:cardReveal .65s cubic-bezier(.2,.8,.2,1) both,cardIdle 8s ease-in-out var(--float-delay,0s) infinite !important; }
+    .diy-card:nth-child(3n+1),.task-card:nth-child(3n+1) { --float-delay:-1.5s; }
+    .diy-card:nth-child(3n+2),.task-card:nth-child(3n+2) { --float-delay:-4s; }
+    .diy-card:nth-child(3n),.task-card:nth-child(3n) { --float-delay:-6s; }
+    @keyframes cardIdle { 0%,100%{translate:0 0} 50%{translate:0 -2px} }
+    .clock-box { animation:clockBreath 4.8s ease-in-out infinite; }
+    @keyframes clockBreath { 0%,100%{text-shadow:0 0 0 rgba(217,183,124,0)} 50%{text-shadow:0 0 16px rgba(217,183,124,.16)} }
+    .section-title,.panel-title { background-size:200% auto; animation:sectionSheen 11s linear infinite; }
+    @keyframes sectionSheen { 0%,70%{background-position:0% center} 100%{background-position:200% center} }
+    @media (prefers-reduced-motion:reduce) { .ambient-orb,.ambient-star,.ambient-line,body::before,body::after,.diy-card,.task-card,.panel-card,.card,.title-area h1,.clock-box,.header-weather { animation:none !important; } }
+
     .diy-progress-wrap { margin:2px 0 8px; padding:9px 10px; border-radius:10px; background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.045); animation:progressAppear .5s ease both; }
     .diy-progress-meta { display:flex; justify-content:space-between; align-items:center; font-size:.72rem; color:var(--muted); margin-bottom:7px; }
     .diy-progress-meta strong { color:var(--amber); font-variant-numeric:tabular-nums; }
@@ -2445,6 +2487,15 @@
       navigator.geolocation.getCurrentPosition(pos=>loadAfternoonWeather(pos.coords.latitude,pos.coords.longitude),showWeatherError,{enableHighAccuracy:false,timeout:9000,maximumAge:3600000});
     }
     initWeather();
+    /* Décor d'ambiance animé, créé une seule fois et sans boucle JS */ 
+    (function createAmbientScene(){
+      if(document.querySelector('.ambient-layer'))return;
+      const layer=document.createElement('div');layer.className='ambient-layer';layer.setAttribute('aria-hidden','true');
+      ['orb-a','orb-b','orb-c'].forEach(cls=>{const orb=document.createElement('i');orb.className='ambient-orb '+cls;layer.appendChild(orb);});
+      for(let i=0;i<26;i++){const star=document.createElement('i');star.className='ambient-star';star.style.left=(3+(i*37)%94)+'%';star.style.top=(8+(i*53)%88)+'%';star.style.setProperty('--dur',(8+(i%7)*1.8)+'s');star.style.setProperty('--delay',(-1*(i%11))+'s');star.style.setProperty('--dx',((i%9)-4)*11+'px');star.style.setProperty('--peak',(0.22+(i%5)*.09).toFixed(2));star.style.width=star.style.height=(i%8===0?'4px':'2px');layer.appendChild(star);}
+      for(let i=0;i<3;i++){const line=document.createElement('i');line.className='ambient-line';line.style.top=(18+i*31)+'%';line.style.left=(-20-i*18)+'%';line.style.animationDelay=(-i*5)+'s';layer.appendChild(line);}
+      document.body.prepend(layer);
+    })();
     /* ANIMATIONS DYNAMIQUES ET MICRO-INTERACTIONS */
     document.addEventListener('click',e=>{
       const target=e.target.closest('button,.btn-pill,.profile-card-btn');
