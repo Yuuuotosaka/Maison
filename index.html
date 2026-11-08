@@ -414,17 +414,6 @@
       color: #ff85be;
       font-weight: 700;
     }
-    .meta-pill-moon {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      padding: 1px 6px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      color: var(--amber);
-      font-weight: 600;
-    }
 
     .header-right { display: flex; align-items: center; gap: 12px; flex: none; }
 
@@ -1167,7 +1156,6 @@
           <div class="meta-sub-row">
             <span id="full-date" style="text-transform: capitalize;"></span>
             <span class="meta-pill-love" id="couple-counter">❤️ Ensemble depuis...</span>
-            <span class="meta-pill-moon" id="moon-phase-tag">🌙 ...</span>
           </div>
         </div>
       </div>
@@ -1763,35 +1751,7 @@
       let jd = c + e + day - 694039.09;
       jd /= 29.5305882;
       let b = parseInt(jd);
-      jd -= b;
-      let phase = Math.round(jd * 8);
-      if (phase >= 8) phase = 0;
-
-      const phases = [
-        { name: "Nouvelle lune", icon: "🌑" },
-        { name: "Premier croissant", icon: "🌒" },
-        { name: "Premier quartier", icon: "🌓" },
-        { name: "Gibbeuse croissante", icon: "🌔" },
-        { name: "Pleine lune", icon: "🌕" },
-        { name: "Gibbeuse décroissante", icon: "🌖" },
-        { name: "Dernier quartier", icon: "🌗" },
-        { name: "Dernier croissant", icon: "🌘" }
-      ];
-      return phases[phase];
-    }
-
-    function updateMoonPhase(now) {
-      const moon = getMoonPhase(now);
-      document.getElementById('moon-phase-tag').textContent = `${moon.icon} ${moon.name}`;
-    }
-
-    /* SUIVI PISCINE */
-    let poolData = {};
-    let poolStocks = { cl_lent: 4, cl_choc: 2, ph_minus: 3, ph_plus: 1, floculant: 2, anti_algues: 1 };
-    const STOCK_NAMES = {
-      cl_lent: "Chlore lent (galets)", cl_choc: "Chlore choc (kg/pots)",
-      ph_minus: "pH Moins (kg/bidons)", ph_plus: "pH Plus (kg/pots)",
-      floculant: "Floculant (cartouches/L)", anti_algues: "Anti-algues (L)"
+ anti_algues: "Anti-algues (L)"
     };
 
     function renderPoolData() {
@@ -2343,7 +2303,6 @@
       document.getElementById('full-date').textContent = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 
       updateCoupleCounter(now);
-      updateMoonPhase(now);
       checkNightMode(now);
       checkTrash(now);
       checkMedAlert(now);
