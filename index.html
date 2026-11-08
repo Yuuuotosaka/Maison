@@ -869,6 +869,11 @@
       flex-direction: column;
       gap: 6px;
     }
+    .diy-project-toggle { width:100%; border:0; background:transparent; color:var(--text); cursor:pointer; text-align:left; padding:2px 0; }
+    .diy-project-toggle .diy-chevron { color:var(--muted); transition:transform .2s ease; }
+    .diy-project-toggle[aria-expanded="true"] .diy-chevron { transform:rotate(180deg); }
+    .diy-project-details[hidden] { display:none !important; }
+    .diy-project-details { display:flex; flex-direction:column; gap:6px; }
     .diy-card-header {
       display: flex;
       justify-content: space-between;
@@ -1953,18 +1958,43 @@
       document.getElementById('modal-add-diy').classList.add('open');
     }
     function renderDiyProjects() {
-      const cont = document.getElementById('diy-projects-list'); cont.innerHTML = '';
+      const cont = document.getElementById('diy-projects-list');
+      cont.innerHTML = '';
       const keys = Object.keys(diyProjects);
-      if (!keys.length) { cont.innerHTML = '<div style="color:var(--muted);font-size:.86rem;padding:10px;">Aucun projet pour le moment. Cliquez sur "➕ Projet" pour en ajouter un.</div>'; return; }
+      if (!keys.length) {
+        cont.innerHTML = '<div style="color:var(--muted);font-size:.86rem;padding:10px;">Aucun projet pour le moment. Cliquez sur "➕ Projet" pour en ajouter un.</div>';
+        return;
+      }
       keys.forEach(k => {
-        const p = diyProjects[k]; if (!p) return;
-        const items = p.items || [], card = document.createElement('div'); card.className = 'diy-card';
-        card.innerHTML = `<div class="diy-card-header"><span class="diy-card-title">🔨 ${p.title}</span><span style="font-size:.75rem;color:var(--muted);font-weight:700;">${items.filter(x=>x.done).length}/${items.length} fait</span></div>
-          <div class="head-actions-wrap" style="justify-content:flex-end"><button class="btn-pill diy-edit">✏️ Modifier</button><button class="btn-pill diy-delete" style="color:var(--danger)">🗑️ Supprimer</button></div>
+        const p = diyProjects[k];
+        if (!p) return;
+        const items = Array.isArray(p.items) ? p.items : [];
+        const card = document.createElement('div');
+        card.className = 'diy-card';
+        const header = document.createElement('button');
+        header.type = 'button';
+        header.className = 'diy-card-header diy-project-toggle';
+        header.setAttribute('aria-expanded', 'false');
+        header.innerHTML = `<span class="diy-card-title">🔨 ${p.title}</span><span class="diy-chevron" aria-hidden="true">▾</span>`;
+        const details = document.createElement('div');
+        details.className = 'diy-project-details';
+        details.hidden = true;
+        details.innerHTML = `<div class="head-actions-wrap" style="justify-content:flex-end"><button type="button" class="btn-pill diy-edit">✏️ Modifier</button><button type="button" class="btn-pill diy-delete" style="color:var(--danger)">🗑️ Supprimer</button></div>
           <div class="diy-items-checklist">${items.map((it,i)=>`<label class="diy-task-row ${it.done?'done':''}"><input type="checkbox" data-idx="${i}" ${it.done?'checked':''}><span>${it.name}</span></label>`).join('')}</div>`;
-        card.querySelector('.diy-edit').addEventListener('click',()=>openDiyEditor(k));
-        card.querySelector('.diy-delete').addEventListener('click',()=>{if(confirm(`Supprimer le projet "${p.title}" et sa checklist ?`)) remove(ref(db,`diy_projects/${k}`));});
-        card.querySelectorAll('input[type=checkbox]').forEach(ch=>ch.addEventListener('change',e=>set(ref(db,`diy_projects/${k}/items/${e.target.dataset.idx}/done`),e.target.checked)));
+        header.addEventListener('click', () => {
+          const expanded = header.getAttribute('aria-expanded') === 'true';
+          header.setAttribute('aria-expanded', String(!expanded));
+          details.hidden = expanded;
+          card.classList.toggle('expanded', !expanded);
+        });
+        details.querySelector('.diy-edit').addEventListener('click', () => openDiyEditor(k));
+        details.querySelector('.diy-delete').addEventListener('click', () => {
+          if (confirm(`Supprimer le projet "${p.title}" et sa checklist ?`)) remove(ref(db, `diy_projects/${k}`));
+        });
+        details.querySelectorAll('input[type="checkbox"]').forEach(ch => ch.addEventListener('change', e => {
+          set(ref(db, `diy_projects/${k}/items/${e.target.dataset.idx}/done`), e.target.checked);
+        }));
+        card.append(header, details);
         cont.appendChild(card);
       });
     }
