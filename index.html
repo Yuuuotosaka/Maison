@@ -1174,6 +1174,90 @@
     @media (max-width:900px) { header { display:flex !important; flex-wrap:wrap; } .header-weather { order:3; width:max-content; max-width:100%; margin:0 auto; } .brand-wrap,.header-right { width:100%; } .header-right { justify-content:space-between; } }
     @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
 
+  
+    /* Animations internes : textes, lignes et sélections */
+    @keyframes innerTextRise {
+      from { opacity:0; transform:translateY(7px); filter:blur(1px); }
+      to { opacity:1; transform:translateY(0); filter:blur(0); }
+    }
+    @keyframes rowGlowSweep {
+      0% { background-position:-160% 0; }
+      100% { background-position:160% 0; }
+    }
+    @keyframes selectionPulse {
+      0%,100% { box-shadow:0 0 0 rgba(217,183,124,0), inset 0 0 0 rgba(217,183,124,0); }
+      50% { box-shadow:0 0 13px rgba(217,183,124,.13), inset 0 0 12px rgba(217,183,124,.045); }
+    }
+    @keyframes textShine {
+      0%,75% { background-position:-120% center; }
+      100% { background-position:220% center; }
+    }
+    /* Contenu des cartes : apparition légère, sans animation permanente */
+    .card > :not(.card-head):not(.head-actions-wrap),
+    .panel-card > p, .panel-card > li,
+    .diy-card .diy-task-row, .task-card .task-row {
+      animation:innerTextRise .42s cubic-bezier(.2,.8,.2,1) both;
+    }
+    .card-head h2, .diy-card-title, .panel-title {
+      text-shadow:0 0 12px rgba(217,183,124,.12);
+      transition:text-shadow .3s ease, color .3s ease, transform .3s ease;
+    }
+    .card:focus-within .card-head h2,
+    .panel-card:focus-within .panel-title {
+      text-shadow:0 0 16px rgba(217,183,124,.28);
+    }
+    /* Les lignes de recettes entrent l'une après l'autre */
+    .jow-item {
+      position:relative;
+      overflow:hidden;
+      isolation:isolate;
+      transition:background .28s ease,border-color .28s ease,transform .24s ease,box-shadow .28s ease;
+      animation:innerTextRise .48s cubic-bezier(.2,.8,.2,1) both;
+    }
+    .jow-item:nth-child(2) { animation-delay:.045s; }
+    .jow-item:nth-child(3) { animation-delay:.09s; }
+    .jow-item:nth-child(4) { animation-delay:.135s; }
+    .jow-item:nth-child(5) { animation-delay:.18s; }
+    .jow-item:nth-child(6) { animation-delay:.225s; }
+    .jow-item:nth-child(7) { animation-delay:.27s; }
+    .jow-item::before {
+      content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+      background:linear-gradient(105deg,transparent 25%,rgba(217,183,124,.12) 48%,rgba(255,255,255,.035) 54%,transparent 76%);
+      background-size:220% 100%;opacity:0;transition:opacity .25s ease;
+    }
+    .jow-item:focus-visible,.jow-item:active { outline:none;border-color:var(--amber);transform:translateX(2px); }
+    .jow-item:focus-visible::before,.jow-item:active::before,.jow-item.picked-dish::before { opacity:1;animation:rowGlowSweep .85s ease both; }
+    .jow-item.picked-dish { animation:selectionPulse 1.4s ease-in-out 2; }
+    .jow-icon { transition:transform .3s ease,filter .3s ease; }
+    .jow-item:active .jow-icon,.jow-item.picked-dish .jow-icon { transform:scale(1.16) rotate(-5deg);filter:drop-shadow(0 0 5px var(--amber-glow)); }
+    .jow-name { transition:color .25s ease,letter-spacing .25s ease; }
+    .jow-item:active .jow-name,.jow-item.picked-dish .jow-name { color:var(--amber);letter-spacing:.15px; }
+    .jow-item .badge { transition:transform .25s ease,box-shadow .25s ease; }
+    .jow-item:active .badge,.jow-item.picked-dish .badge { transform:scale(1.06);box-shadow:0 0 10px var(--amber-glow); }
+    /* Cases à cocher et lignes de sélection dans les autres cartes */
+    .diy-task-row,.task-row,.stock-row,.med-day-col,.theme-card-btn,.option-row {
+      position:relative;
+      transition:background .25s ease,border-color .25s ease,transform .22s ease,box-shadow .25s ease;
+    }
+    .diy-task-row:active,.task-row:active,.stock-row:active,.theme-card-btn:active,.option-row:active {
+      transform:translateX(2px);border-color:var(--amber);box-shadow:0 0 12px var(--amber-glow);
+    }
+    .diy-task-row input:checked + label,.diy-task-row.done {
+      animation:selectionPulse .75s ease both;
+    }
+    .med-day-col button,.stock-control-btn,.btn-action,.btn-dice {
+      transition:transform .2s ease,filter .2s ease,box-shadow .25s ease;
+    }
+    .med-day-col button:active,.stock-control-btn:active,.btn-action:active,.btn-dice:active {
+      transform:scale(.94);filter:brightness(1.25);box-shadow:0 0 12px var(--amber-glow);
+    }
+    @media (prefers-reduced-motion:reduce) {
+      .jow-item,.jow-item::before,.card > :not(.card-head):not(.head-actions-wrap),
+      .panel-card > p,.panel-card > li,.diy-card .diy-task-row,.task-card .task-row {
+        animation:none !important;transition:none !important;
+      }
+    }
+
   </style>
 </head>
 <body>
