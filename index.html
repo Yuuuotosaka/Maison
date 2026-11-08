@@ -1137,7 +1137,9 @@
     @keyframes progressAppear { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
     .tap-feedback { animation:tapFeedback .26s ease both; }
     @keyframes tapFeedback { 0%{filter:brightness(1)} 45%{filter:brightness(1.35);transform:scale(.97)} 100%{filter:brightness(1)} }
-    body.night-dim .screen-saver { background:rgba(1,2,5,.985); }
+    /* Veille et assombrissement désactivés : dashboard toujours visible */
+    body.night-dim { filter:none !important; }
+    body.night-dim .screen-saver { opacity:0 !important; visibility:hidden !important; }
 
     :root, [data-theme="default"] { --bg:#090b10; --card:#121720; --card-border:rgba(195,215,255,.11); --text:#eef3fb; --muted:#8c9aaf; --amber:#d9b77c; --amber-glow:rgba(217,183,124,.22); }
     body { background-color:#090b10; background-image:radial-gradient(ellipse at 15% 0%,rgba(72,91,130,.15),transparent 42%),radial-gradient(ellipse at 85% 100%,rgba(132,86,120,.10),transparent 38%); }
@@ -1166,7 +1168,7 @@
     #fx-overlay { backdrop-filter:blur(9px); }
     .modal-box { animation:modalEnter .35s cubic-bezier(.2,.8,.2,1) both; }
     @keyframes modalEnter { from{opacity:0;transform:translateY(18px) scale(.97)} to{opacity:1;transform:translateY(0) scale(1)} }
-    .screen-saver { position:fixed; inset:0; z-index:1200; background:rgba(3,5,9,.965); opacity:0; visibility:hidden; transition:opacity .45s ease,visibility .45s ease; display:flex; align-items:center; justify-content:center; touch-action:manipulation; }
+    .screen-saver { display:none !important; }
     .screen-saver.active { opacity:1; visibility:visible; }
     .screen-saver::before { content:"";width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(217,183,124,.12),transparent 68%); animation:saverBreath 5s ease-in-out infinite; }
     @keyframes saverBreath { 0%,100%{transform:scale(.8);opacity:.5} 50%{transform:scale(1.25);opacity:1} }
@@ -2423,35 +2425,19 @@
       });
     }
 
-    /* VEILLE TACTILE INTELLIGENTE : écran sombre, réveil par tap */
+    /* VEILLE DÉSACTIVÉE : l'écran reste toujours visible et lumineux.
+       Aucun minuteur d'inactivité, écran de veille ou mode nuit automatique. */
     const screenSaver = document.getElementById('screen-saver');
-    let idleTimer = null;
-    const IDLE_DELAY = 120000;
     function wakeDashboard() {
-      screenSaver.classList.remove('active');
-      document.body.classList.remove('screen-sleep');
-      scheduleDashboardSleep();
+      screenSaver?.classList.remove('active');
+      document.body.classList.remove('screen-sleep','night-dim');
     }
-    function sleepDashboard() {
-      if (document.querySelector('.modal-overlay.open') || document.getElementById('fx-overlay').classList.contains('active')) { scheduleDashboardSleep(); return; }
-      screenSaver.classList.add('active');
-      document.body.classList.add('screen-sleep');
+    function sleepDashboard() { /* désactivé volontairement */ }
+    function scheduleDashboardSleep() { /* désactivé volontairement */ }
+    function checkNightMode() {
+      document.body.classList.remove('night-dim','screen-sleep');
+      screenSaver?.classList.remove('active');
     }
-    function scheduleDashboardSleep() {
-      if (idleTimer) clearTimeout(idleTimer);
-      idleTimer = setTimeout(sleepDashboard, IDLE_DELAY);
-    }
-    ['pointerdown','touchstart','keydown'].forEach(evt => window.addEventListener(evt, () => {
-      if (screenSaver.classList.contains('active')) wakeDashboard();
-      else scheduleDashboardSleep();
-    }, {passive:true}));
-    screenSaver.addEventListener('click', wakeDashboard);
-    screenSaver.addEventListener('touchstart', wakeDashboard, {passive:true});
-    function checkNightMode(now) {
-      const mins = now.getHours()*60 + now.getMinutes();
-      document.body.classList.toggle('night-dim', mins >= 1410 || mins < 390);
-    }
-    scheduleDashboardSleep();
 
     /* MENU DES 5 THÈMES */
     let currentTheme = localStorage.getItem('cocon_theme') || 'default';
