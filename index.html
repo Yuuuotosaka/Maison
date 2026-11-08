@@ -1800,7 +1800,8 @@
           b.addEventListener('click', () => {
             const op = parseInt(b.getAttribute('data-op'), 10);
             const key = b.getAttribute('data-k');
-            poolStocks[key] = Math.max(0, (poolStocks[key] || 0) + op);
+            poolStocks[key] = Math.max(0, (Number(poolStocks[key]) || 0) + op);
+            renderPoolStocks();
             set(ref(db, `pool_stocks/${key}`), poolStocks[key]);
           });
         });
@@ -1809,10 +1810,10 @@
     }
 
     document.getElementById('btn-edit-pool').addEventListener('click', () => {
-      document.getElementById('in-pool-temp').value = poolData.temp || '';
-      document.getElementById('in-pool-ph').value = poolData.ph || '';
-      document.getElementById('in-pool-cl').value = poolData.cl || '';
-      document.getElementById('in-pool-tac').value = poolData.tac || '';
+      document.getElementById('in-pool-temp').value = poolData.temp ?? '';
+      document.getElementById('in-pool-ph').value = poolData.ph ?? '';
+      document.getElementById('in-pool-cl').value = poolData.cl ?? '';
+      document.getElementById('in-pool-tac').value = poolData.tac ?? '';
       document.getElementById('modal-pool-edit').classList.add('open');
     });
 
@@ -1826,21 +1827,21 @@
       const cl = parseFloat(document.getElementById('in-pool-cl').value) || 1.2;
       const tac = parseInt(document.getElementById('in-pool-tac').value, 10) || 100;
 
-      set(ref(db, 'pool_data'), {
-        temp, ph, cl, tac,
-        hivernage: poolData.hivernage !== false,
-        at: Date.now(),
-        by: currentProfile
-      });
+      poolData = { ...poolData, temp, ph, cl, tac, at: Date.now(), by: currentProfile };
+      renderPoolData();
+      set(ref(db, 'pool_data'), poolData);
       document.getElementById('modal-pool-edit').classList.remove('open');
     });
 
     document.getElementById('btn-toggle-hivernage').addEventListener('click', () => {
       const next = poolData.hivernage === false;
+      poolData = { ...poolData, hivernage: next };
+      renderPoolData();
       set(ref(db, 'pool_data/hivernage'), next);
     });
 
-    document.getElementById('btn-open-pool-stocks').addEventListener('click', () => {
+    document.getElementById('btn-open-pool-stocks').addEventListener('click', (e) => {
+      e.preventDefault();
       renderPoolStocks();
       document.getElementById('modal-pool-stocks').classList.add('open');
     });
