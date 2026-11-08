@@ -231,6 +231,9 @@
       transition: opacity 0.2s ease-out;
     }
     #fx-overlay.active { opacity: 1; }
+    .task-fx-pop { display:flex; flex-direction:column; align-items:center; gap:14px; color:var(--success); font-size:clamp(3rem,12vw,6rem); font-weight:800; animation:taskFxPop .75s cubic-bezier(.2,.8,.2,1) both; text-shadow:0 0 24px var(--amber-glow); }
+    .task-fx-pop span { font-size:clamp(1rem,4vw,1.6rem); }
+    @keyframes taskFxPop { 0% { transform:scale(.45) rotate(-12deg); opacity:0; } 55% { transform:scale(1.15) rotate(4deg); opacity:1; } 100% { transform:scale(1) rotate(0); opacity:1; } }
     .fx-svg {
       width: 240px;
       height: 240px;
@@ -2193,13 +2196,15 @@
       const taskTargets = [taskListBox, taskHomeListBox].filter(Boolean);
       taskTargets.forEach(target => { target.innerHTML = ''; });
       const now = Date.now();
+      const taskFX = { litter: '🐱', plants: '🌿', sheets: '🛏️', cleaning: '🧹', bird_feeder: '🐦' };
 
       DEFAULT_TASKS.forEach(t => {
         const entry = tasksData[t.id] || {};
-        const lastDone = entry.at || (now - t.freqDays * 86400000);
-        const daysAgo = Math.floor((now - lastDone) / 86400000);
+        const lastDone = entry.at || 0;
+        const daysAgo = lastDone ? Math.floor((now - lastDone) / 86400000) : null;
         const who = entry.by || '';
-        const isOverdue = daysAgo >= t.freqDays;
+        const isOverdue = !lastDone || daysAgo >= t.freqDays;
+        const isDoneToday = !!lastDone && daysAgo === 0;
 
         taskTargets.forEach(target => {
           const card = document.createElement('div');
@@ -2208,16 +2213,22 @@
             <div class="task-info">
               <span class="task-title">${t.icon} ${t.title}</span>
               <span class="task-status ${isOverdue ? 'overdue' : ''}">
-                ${daysAgo === 0 ? "Fait aujourd'hui" : `Il y a ${daysAgo} jour${daysAgo > 1 ? 's' : ''}`}
-                ${who ? `(par ${who})` : ''} • tous les ${t.freqDays}j
+                ${!lastDone ? 'À faire' : isDoneToday ? "Fait aujourd'hui" : `Il y a ${daysAgo} jour${daysAgo > 1 ? 's' : ''}`}
+                ${who && lastDone ? ` (par ${who})` : ''} • tous les ${t.freqDays}j
               </span>
             </div>
-            <button class="btn-action" data-task="${t.id}" style="padding: 5px 11px; border-radius: 9px;">✓ Fait</button>
+            <button type="button" class="btn-action ${isDoneToday ? 'task-done' : ''}" data-task="${t.id}" style="padding:5px 11px;border-radius:9px;">${isDoneToday ? '✓ Fait' : 'À faire'}</button>
           `;
 
-          card.querySelector('button').addEventListener('click', () => {
-            set(ref(db, `household_tasks/${t.id}`), { at: Date.now(), by: currentProfile });
-            triggerFullScreenFX('jow');
+          card.querySelector('button').addEventListener('click', async () => {
+            if (isDoneToday) return;
+            try {
+              await set(ref(db, `household_tasks/${t.id}`), { at: Date.now(), by: currentProfile });
+              triggerFullScreenFX('task:' + t.id);
+            } catch (error) {
+              console.error('Échec validation tâche foyer', error);
+              alert('Impossible de valider cette tâche. Vérifie la connexion Firebase.');
+            }
           });
           target.appendChild(card);
         });
@@ -2285,7 +2296,12 @@
     function triggerFullScreenFX(type) {
       if (fxTimeout) clearTimeout(fxTimeout);
 
-      if (type === 'med') {
+      const taskFXIcons = { litter: '🐱', plants: '🌿', sheets: '🛏️', cleaning: '🧹', bird_feeder: '🐦' };
+      if (type.startsWith('task:')) {
+        const taskId = type.slice(5);
+        const icon = taskFXIcons[taskId] || '✨';
+        fxContent.innerHTML = `<div class="task-fx-pop" role="img" aria-label="Tâche accomplie">${icon}<span>Bien joué !</span></div>`;
+      } else if (type === 'med') {
         fxContent.innerHTML = `
           <svg class="fx-svg" viewBox="0 0 100 100">
             <defs>
