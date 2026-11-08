@@ -1083,6 +1083,43 @@
       .header-right { width: 100%; justify-content: space-between; }
       .clock-box { font-size: 2.2rem; }
     }
+
+    /* COCOON AMBIANCE: dark luxe + motion, tuned for tablet */
+    :root, [data-theme="default"] { --bg:#090b10; --card:#121720; --card-border:rgba(195,215,255,.11); --text:#eef3fb; --muted:#8c9aaf; --amber:#d9b77c; --amber-glow:rgba(217,183,124,.22); }
+    body { background-color:#090b10; background-image:radial-gradient(ellipse at 15% 0%,rgba(72,91,130,.15),transparent 42%),radial-gradient(ellipse at 85% 100%,rgba(132,86,120,.10),transparent 38%); }
+    body::before { content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.16; background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.09) 0 1px,transparent 1.5px),radial-gradient(circle at 75% 65%,rgba(255,255,255,.06) 0 1px,transparent 1.5px); background-size:47px 53px,67px 71px; animation:ambientDrift 28s linear infinite; }
+    @keyframes ambientDrift { from{background-position:0 0,0 0} to{background-position:180px 100px,-130px 160px} }
+    .viewport-slider, header, .alerts-container, .slides-track { position:relative; z-index:1; }
+    header { display:grid !important; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; }
+    .brand-wrap { grid-column:1; }
+    .header-weather { grid-column:2; justify-self:center; text-align:center; color:var(--text); padding:7px 15px; border:1px solid rgba(217,183,124,.18); border-radius:999px; background:linear-gradient(135deg,rgba(255,255,255,.045),rgba(255,255,255,.012)); box-shadow:0 8px 28px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.04); font-size:.83rem; white-space:nowrap; animation:weatherFloat 5s ease-in-out infinite; }
+    .header-right { grid-column:3; justify-self:end; }
+    @keyframes weatherFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2px)} }
+    .diy-card,.task-card,.panel-card,.card { animation:cardReveal .65s cubic-bezier(.2,.8,.2,1) both; transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease,background .28s ease; }
+    .diy-card:hover,.task-card:hover,.panel-card:hover,.card:hover { transform:translateY(-3px); border-color:rgba(217,183,124,.3); box-shadow:0 12px 28px rgba(0,0,0,.22); }
+    @keyframes cardReveal { from{opacity:0;transform:translateY(13px) scale(.985);filter:blur(2px)} to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)} }
+    .diy-card.expanded { border-color:rgba(217,183,124,.32); box-shadow:0 0 0 1px rgba(217,183,124,.06),0 10px 30px rgba(0,0,0,.2); }
+    .diy-card-title { transition:color .25s ease,letter-spacing .25s ease; }
+    .diy-project-toggle[aria-expanded="true"] .diy-card-title { color:var(--amber); letter-spacing:.2px; }
+    .diy-task-row { transition:opacity .25s ease,transform .25s ease; }
+    .diy-task-row.done { animation:taskChecked .42s ease both; }
+    @keyframes taskChecked { 0%{transform:scale(1)} 45%{transform:scale(1.025)} 100%{transform:scale(1)} }
+    button,input,textarea { transition:transform .18s ease,filter .18s ease,box-shadow .2s ease; }
+    button:active { transform:scale(.965); filter:brightness(1.18); }
+    .task-card { position:relative; overflow:hidden; }
+    .task-card::after { content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,.035) 48%,transparent 75%);transform:translateX(-120%);animation:cardShimmer 7s ease-in-out infinite; }
+    @keyframes cardShimmer { 0%,65%{transform:translateX(-120%)} 100%{transform:translateX(120%)} }
+    #fx-overlay { backdrop-filter:blur(9px); }
+    .modal-box { animation:modalEnter .35s cubic-bezier(.2,.8,.2,1) both; }
+    @keyframes modalEnter { from{opacity:0;transform:translateY(18px) scale(.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+    .screen-saver { position:fixed; inset:0; z-index:1200; background:rgba(3,5,9,.965); opacity:0; visibility:hidden; transition:opacity .45s ease,visibility .45s ease; display:flex; align-items:center; justify-content:center; touch-action:manipulation; }
+    .screen-saver.active { opacity:1; visibility:visible; }
+    .screen-saver::before { content:"";width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(217,183,124,.12),transparent 68%); animation:saverBreath 5s ease-in-out infinite; }
+    @keyframes saverBreath { 0%,100%{transform:scale(.8);opacity:.5} 50%{transform:scale(1.25);opacity:1} }
+    body.screen-sleep { cursor:none; }
+    @media (max-width:900px) { header { display:flex !important; flex-wrap:wrap; } .header-weather { order:3; width:max-content; max-width:100%; margin:0 auto; } .brand-wrap,.header-right { width:100%; } .header-right { justify-content:space-between; } }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
+
   </style>
 </head>
 <body>
@@ -1090,6 +1127,8 @@
   <div id="fx-overlay">
     <div id="fx-content"></div>
   </div>
+
+  <div class="screen-saver" id="screen-saver" aria-label="Toucher pour réveiller le tableau de bord"></div>
 
   <div id="floating-love-modal">
     <div class="floating-love-content">
@@ -1168,6 +1207,7 @@
         </div>
       </div>
 
+      <div class="header-weather" id="header-weather" aria-live="polite">☁️ Prévisions météo…</div>
       <div class="header-right">
         <!-- BOUTONS PROFILS DÉCOUPLÉS -->
         <div class="profiles-column-switch">
@@ -2235,27 +2275,35 @@
       });
     }
 
-    /* MODE NUIT AUTOMATIQUE (23h30 - 06h30) */
-    let nightWakeTimeout = null;
-    function checkNightMode(now) {
-      const hour = now.getHours();
-      const min = now.getMinutes();
-      const totalMins = hour * 60 + min;
-      const isNight = totalMins >= 1410 || totalMins < 390;
-
-      if (isNight) document.body.classList.add('night-dim');
-      else document.body.classList.remove('night-dim', 'night-wake');
+    /* VEILLE TACTILE INTELLIGENTE : écran sombre, réveil par tap */
+    const screenSaver = document.getElementById('screen-saver');
+    let idleTimer = null;
+    const IDLE_DELAY = 120000;
+    function wakeDashboard() {
+      screenSaver.classList.remove('active');
+      document.body.classList.remove('screen-sleep');
+      scheduleDashboardSleep();
     }
-
-    window.addEventListener('click', () => {
-      if (document.body.classList.contains('night-dim')) {
-        document.body.classList.add('night-wake');
-        if (nightWakeTimeout) clearTimeout(nightWakeTimeout);
-        nightWakeTimeout = setTimeout(() => {
-          document.body.classList.remove('night-wake');
-        }, 30000);
-      }
-    });
+    function sleepDashboard() {
+      if (document.querySelector('.modal-overlay.open') || document.getElementById('fx-overlay').classList.contains('active')) { scheduleDashboardSleep(); return; }
+      screenSaver.classList.add('active');
+      document.body.classList.add('screen-sleep');
+    }
+    function scheduleDashboardSleep() {
+      if (idleTimer) clearTimeout(idleTimer);
+      idleTimer = setTimeout(sleepDashboard, IDLE_DELAY);
+    }
+    ['pointerdown','touchstart','keydown'].forEach(evt => window.addEventListener(evt, () => {
+      if (screenSaver.classList.contains('active')) wakeDashboard();
+      else scheduleDashboardSleep();
+    }, {passive:true}));
+    screenSaver.addEventListener('click', wakeDashboard);
+    screenSaver.addEventListener('touchstart', wakeDashboard, {passive:true});
+    function checkNightMode(now) {
+      const mins = now.getHours()*60 + now.getMinutes();
+      document.body.classList.toggle('night-dim', mins >= 1410 || mins < 390);
+    }
+    scheduleDashboardSleep();
 
     /* MENU DES 5 THÈMES */
     let currentTheme = localStorage.getItem('cocon_theme') || 'default';
@@ -2356,6 +2404,31 @@
       checkWeekChanged(now);
     }
 
+    /* MÉTÉO SIMPLE : géolocalisation du navigateur + prévision Open-Meteo */
+    const weatherEl = document.getElementById('header-weather');
+    const weatherLabels = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+    function showWeatherError(){ if(weatherEl) weatherEl.textContent='🌤️ Météo indisponible'; }
+    function loadAfternoonWeather(lat,lon){
+      const url='https://api.open-meteo.com/v1/forecast?latitude='+encodeURIComponent(lat)+'&longitude='+encodeURIComponent(lon)+'&hourly=temperature_2m,weather_code&forecast_days=1&timezone=auto';
+      fetch(url).then(r=>{if(!r.ok)throw new Error('weather');return r.json();}).then(data=>{
+        const times=data.hourly?.time||[], temps=data.hourly?.temperature_2m||[], codes=data.hourly?.weather_code||[];
+        const today=new Date(); const targetHour=15; let best=-1,delta=Infinity;
+        times.forEach((t,i)=>{const d=new Date(t);if(d.getDate()===today.getDate()&&d.getMonth()===today.getMonth()&&d.getFullYear()===today.getFullYear()){const diff=Math.abs(d.getHours()-targetHour);if(diff<delta){delta=diff;best=i;}}});
+        if(best<0||temps[best]==null)throw new Error('no forecast');
+        const code=codes[best];weatherEl.textContent=(weatherLabels[code]||'🌤️')+' Cet après-midi : '+Math.round(temps[best])+'°';
+      }).catch(showWeatherError);
+    }
+    function initWeather(){
+      if(!navigator.geolocation){showWeatherError();return;}
+      navigator.geolocation.getCurrentPosition(pos=>loadAfternoonWeather(pos.coords.latitude,pos.coords.longitude),showWeatherError,{enableHighAccuracy:false,timeout:9000,maximumAge:3600000});
+    }
+    initWeather();
+    /* ANIMATIONS DYNAMIQUES ET MICRO-INTERACTIONS */
+    document.addEventListener('click',e=>{
+      const target=e.target.closest('button,.btn-pill,.profile-card-btn');
+      if(target&&!target.classList.contains('task-done')){target.classList.add('tap-feedback');setTimeout(()=>target.classList.remove('tap-feedback'),260);}
+    });
+    
     let inkyData = {};
     let syncedWeekId = null;
     let trashDoneWeek = null;
