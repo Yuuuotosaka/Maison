@@ -1818,16 +1818,34 @@
       document.getElementById('modal-pool-edit').classList.remove('open');
     });
 
-    document.getElementById('btn-save-pool').addEventListener('click', () => {
-      const temp = parseFloat(document.getElementById('in-pool-temp').value) || 14;
-      const ph = parseFloat(document.getElementById('in-pool-ph').value) || 7.2;
-      const cl = parseFloat(document.getElementById('in-pool-cl').value) || 1.2;
-      const tac = parseInt(document.getElementById('in-pool-tac').value, 10) || 100;
-
-      poolData = { ...poolData, temp, ph, cl, tac, at: Date.now(), by: currentProfile };
-      renderPoolData();
-      set(ref(db, 'pool_data'), poolData);
-      document.getElementById('modal-pool-edit').classList.remove('open');
+    document.getElementById('btn-save-pool').addEventListener('click', async () => {
+      const fields = [
+        ['in-pool-temp', 'Température'], ['in-pool-ph', 'pH'],
+        ['in-pool-cl', 'Chlore'], ['in-pool-tac', 'TAC']
+      ];
+      const values = fields.map(([id, label]) => {
+        const raw = document.getElementById(id).value.trim();
+        return { label, value: raw === '' ? NaN : Number(raw) };
+      });
+      if (values.some(v => !Number.isFinite(v.value))) {
+        alert('Renseigne les quatre valeurs du relevé piscine.');
+        return;
+      }
+      const [temp, ph, cl, tac] = values.map(v => v.value);
+      if (temp < 0 || temp > 50 || ph < 0 || ph > 14 || cl < 0 || tac < 0) {
+        alert('Vérifie les valeurs saisies : elles semblent hors limites.');
+        return;
+      }
+      const updated = { ...poolData, temp, ph, cl, tac, at: Date.now(), by: currentProfile };
+      try {
+        await set(ref(db, 'pool_data'), updated);
+        poolData = updated;
+        renderPoolData();
+        document.getElementById('modal-pool-edit').classList.remove('open');
+      } catch (error) {
+        console.error('Échec sauvegarde relevé piscine', error);
+        alert('Impossible d’enregistrer le relevé. Vérifie la connexion Firebase.');
+      }
     });
 
     document.getElementById('btn-toggle-hivernage').addEventListener('click', () => {
@@ -1952,14 +1970,30 @@
     }
     document.getElementById('btn-add-project').addEventListener('click',()=>openDiyEditor());
     document.getElementById('btn-close-add-diy').addEventListener('click',()=>document.getElementById('modal-add-diy').classList.remove('open'));
-    document.getElementById('btn-save-diy').addEventListener('click',()=>{
-      const title=document.getElementById('diy-new-title').value.trim(), raw=document.getElementById('diy-new-items').value.trim();
-      if(!title){alert("Veuillez indiquer un titre de projet.");return;}
-      const old=editingDiyId?(diyProjects[editingDiyId]?.items||[]):[];
-      const items=raw.split('\n').map(x=>x.trim()).filter(Boolean).map(name=>{const match=old.find(x=>x.name===name);return{name,done:match?!!match.done:false};});
-      if(editingDiyId) update(ref(db,`diy_projects/${editingDiyId}`),{title,items});
-      else {const nr=push(ref(db,'diy_projects'));set(nr,{title,items,at:Date.now()});}
-      editingDiyId=null;document.getElementById('diy-new-title').value='';document.getElementById('diy-new-items').value='';document.getElementById('modal-add-diy').classList.remove('open');
+    document.getElementById('btn-save-diy').addEventListener('click', async () => {
+      const title = document.getElementById('diy-new-title').value.trim();
+      const raw = document.getElementById('diy-new-items').value.trim();
+      if (!title) { alert('Veuillez indiquer un titre de projet.'); return; }
+      const oldItems = editingDiyId ? (diyProjects[editingDiyId]?.items || []) : [];
+      const items = raw ? raw.split('\n').map(x => x.trim()).filter(Boolean).map(name => {
+        const match = oldItems.find(x => x.name === name);
+        return { name, done: match ? !!match.done : false };
+      }) : [];
+      try {
+        if (editingDiyId) {
+          await update(ref(db, `diy_projects/${editingDiyId}`), { title, items });
+        } else {
+          const newRef = push(ref(db, 'diy_projects'));
+          await set(newRef, { title, items, at: Date.now() });
+        }
+        document.getElementById('modal-add-diy').classList.remove('open');
+        editingDiyId = null;
+        document.getElementById('diy-new-title').value = '';
+        document.getElementById('diy-new-items').value = '';
+      } catch (error) {
+        console.error('Échec sauvegarde projet', error);
+        alert('Impossible d’enregistrer le projet. Vérifie la connexion Firebase.');
+      }
     });
 
         /* ANNIVERSAIRES */
