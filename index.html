@@ -1926,77 +1926,45 @@
 
     /* PROJETS BRICOLAGE */
     let diyProjects = {};
-
+    let editingDiyId = null;
+    function openDiyEditor(id = null) {
+      editingDiyId = id;
+      const p = id ? diyProjects[id] : null;
+      document.getElementById('diy-new-title').value = p?.title || '';
+      document.getElementById('diy-new-items').value = (p?.items || []).map(x => x.name).join('\n');
+      document.querySelector('#modal-add-diy h3').textContent = p ? '✏️ Modifier le projet' : '🛠️ Nouveau projet pour la maison';
+      document.getElementById('btn-save-diy').textContent = p ? 'Enregistrer les modifications' : 'Créer le projet';
+      document.getElementById('modal-add-diy').classList.add('open');
+    }
     function renderDiyProjects() {
-      const cont = document.getElementById('diy-projects-list');
-      cont.innerHTML = '';
+      const cont = document.getElementById('diy-projects-list'); cont.innerHTML = '';
       const keys = Object.keys(diyProjects);
-
-      if (!keys.length) {
-        cont.innerHTML = '<div style="color:var(--muted); font-size:0.86rem; padding:10px;">Aucun projet pour le moment. Cliquez sur "➕ Projet" pour en ajouter un.</div>';
-        return;
-      }
-
+      if (!keys.length) { cont.innerHTML = '<div style="color:var(--muted);font-size:.86rem;padding:10px;">Aucun projet pour le moment. Cliquez sur "➕ Projet" pour en ajouter un.</div>'; return; }
       keys.forEach(k => {
-        const p = diyProjects[k];
-        if (!p) return;
-
-        const card = document.createElement('div');
-        card.className = 'diy-card';
-        const items = p.items || [];
-        const completedCount = items.filter(i => i.done).length;
-
-        card.innerHTML = `
-          <div class="diy-card-header">
-            <span class="diy-card-title">🔨 ${p.title}</span>
-            <span style="font-size:0.75rem; color:var(--muted); font-weight:700;">${completedCount}/${items.length} fait</span>
-          </div>
-          <div class="diy-items-checklist">
-            ${items.map((it, idx) => `
-              <label class="diy-task-row ${it.done ? 'done' : ''}">
-                <input type="checkbox" data-proj="${k}" data-idx="${idx}" ${it.done ? 'checked' : ''}>
-                <span>${it.name}</span>
-              </label>
-            `).join('')}
-          </div>
-        `;
-
-        card.querySelectorAll('input[type="checkbox"]').forEach(ch => {
-          ch.addEventListener('change', (e) => {
-            const pId = e.target.getAttribute('data-proj');
-            const iIdx = parseInt(e.target.getAttribute('data-idx'), 10);
-            const isChecked = e.target.checked;
-            set(ref(db, `diy_projects/${pId}/items/${iIdx}/done`), isChecked);
-          });
-        });
-
+        const p = diyProjects[k]; if (!p) return;
+        const items = p.items || [], card = document.createElement('div'); card.className = 'diy-card';
+        card.innerHTML = `<div class="diy-card-header"><span class="diy-card-title">🔨 ${p.title}</span><span style="font-size:.75rem;color:var(--muted);font-weight:700;">${items.filter(x=>x.done).length}/${items.length} fait</span></div>
+          <div class="head-actions-wrap" style="justify-content:flex-end"><button class="btn-pill diy-edit">✏️ Modifier</button><button class="btn-pill diy-delete" style="color:var(--danger)">🗑️ Supprimer</button></div>
+          <div class="diy-items-checklist">${items.map((it,i)=>`<label class="diy-task-row ${it.done?'done':''}"><input type="checkbox" data-idx="${i}" ${it.done?'checked':''}><span>${it.name}</span></label>`).join('')}</div>`;
+        card.querySelector('.diy-edit').addEventListener('click',()=>openDiyEditor(k));
+        card.querySelector('.diy-delete').addEventListener('click',()=>{if(confirm(`Supprimer le projet "${p.title}" et sa checklist ?`)) remove(ref(db,`diy_projects/${k}`));});
+        card.querySelectorAll('input[type=checkbox]').forEach(ch=>ch.addEventListener('change',e=>set(ref(db,`diy_projects/${k}/items/${e.target.dataset.idx}/done`),e.target.checked)));
         cont.appendChild(card);
       });
     }
-
-    document.getElementById('btn-add-project').addEventListener('click', () => {
-      document.getElementById('modal-add-diy').classList.add('open');
+    document.getElementById('btn-add-project').addEventListener('click',()=>openDiyEditor());
+    document.getElementById('btn-close-add-diy').addEventListener('click',()=>document.getElementById('modal-add-diy').classList.remove('open'));
+    document.getElementById('btn-save-diy').addEventListener('click',()=>{
+      const title=document.getElementById('diy-new-title').value.trim(), raw=document.getElementById('diy-new-items').value.trim();
+      if(!title){alert("Veuillez indiquer un titre de projet.");return;}
+      const old=editingDiyId?(diyProjects[editingDiyId]?.items||[]):[];
+      const items=raw.split('\n').map(x=>x.trim()).filter(Boolean).map(name=>{const match=old.find(x=>x.name===name);return{name,done:match?!!match.done:false};});
+      if(editingDiyId) update(ref(db,`diy_projects/${editingDiyId}`),{title,items});
+      else {const nr=push(ref(db,'diy_projects'));set(nr,{title,items,at:Date.now()});}
+      editingDiyId=null;document.getElementById('diy-new-title').value='';document.getElementById('diy-new-items').value='';document.getElementById('modal-add-diy').classList.remove('open');
     });
 
-    document.getElementById('btn-close-add-diy').addEventListener('click', () => {
-      document.getElementById('modal-add-diy').classList.remove('open');
-    });
-
-    document.getElementById('btn-save-diy').addEventListener('click', () => {
-      const title = document.getElementById('diy-new-title').value.trim();
-      const rawItems = document.getElementById('diy-new-items').value.trim();
-      if (!title) { alert("Veuillez indiquer un titre de projet."); return; }
-
-      const items = rawItems.split('\n').map(l => l.trim()).filter(l => l.length > 0).map(name => ({ name, done: false }));
-      const newRef = push(ref(db, 'diy_projects'));
-      set(newRef, { title, items, at: Date.now() });
-
-      document.getElementById('diy-new-title').value = '';
-      document.getElementById('diy-new-items').value = '';
-      document.getElementById('modal-add-diy').classList.remove('open');
-    });
-
-    /* ANNIVERSAIRES */
+        /* ANNIVERSAIRES */
     let birthdaysData = {};
 
     function checkBirthdays(now) {
