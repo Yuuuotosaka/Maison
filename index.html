@@ -1355,17 +1355,11 @@
             <div class="p-name-row">
               <span class="profile-dot"></span> Romain
             </div>
-            <div class="p-mood-sub" id="mood-chip-romain" title="Changer l'émoticône de Romain">
-              <span id="mood-icon-romain">⚡</span> <span id="mood-text-romain">En forme</span>
-            </div>
           </div>
 
           <div id="btn-amelie" class="profile-card-btn amelie">
             <div class="p-name-row">
               <span class="profile-dot"></span> Amélie
-            </div>
-            <div class="p-mood-sub" id="mood-chip-amelie" title="Changer l'émoticône d'Amélie">
-              <span id="mood-icon-amelie">☕</span> <span id="mood-text-amelie">Posée</span>
             </div>
           </div>
         </div>
@@ -1673,26 +1667,6 @@
 
       <div class="modal-actions" style="margin-top: 6px;">
         <button class="btn-secondary" id="btn-close-theme">Fermer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL SÉLECTION D'HUMEUR -->
-  <div class="modal-overlay" id="modal-mood">
-    <div class="modal-box">
-      <h3 class="serif" id="mood-modal-title" style="font-size: 1.25rem; color: var(--amber);">Comment va... ?</h3>
-      <div class="mood-picker-grid" id="mood-picker-grid">
-        <button class="mood-choice-btn" data-icon="⚡" data-text="En forme"><span>⚡</span> Pleine énergie</button>
-        <button class="mood-choice-btn" data-icon="☕" data-text="Posé(e)"><span>☕</span> Posé & café</button>
-        <button class="mood-choice-btn" data-icon="🥱" data-text="Fatigué(e)"><span>🥱</span> Besoin de repos</button>
-        <button class="mood-choice-btn" data-icon="🧘" data-text="Détente"><span>🧘</span> Détente & calme</button>
-        <button class="mood-choice-btn" data-icon="🎧" data-text="Dans sa bulle"><span>🎧</span> Dans ma bulle</button>
-        <button class="mood-choice-btn" data-icon="😋" data-text="Faim"><span>😋</span> Faim de loup</button>
-        <button class="mood-choice-btn" data-icon="❤️" data-text="Câlin"><span>❤️</span> Câlin & love</button>
-        <button class="mood-choice-btn" data-icon="🤯" data-text="Chargé(e)"><span>🤯</span> Journée chargée</button>
-      </div>
-      <div class="modal-actions">
-        <button class="btn-secondary" id="btn-close-mood">Annuler</button>
       </div>
     </div>
   </div>
@@ -2291,50 +2265,7 @@
       dateInput.value = '';
     });
 
-    /* GESTION DES HUMEURS & SÉLECTION PROFILS SÉPARÉE */
-    let targetMoodProfile = 'Romain';
-    const modalMood = document.getElementById('modal-mood');
-    const moodModalTitle = document.getElementById('mood-modal-title');
-
-    document.getElementById('mood-chip-romain').addEventListener('click', (e) => {
-      e.stopPropagation();
-      targetMoodProfile = 'Romain';
-      moodModalTitle.textContent = "Humeur de Romain";
-      modalMood.classList.add('open');
-    });
-
-    document.getElementById('mood-chip-amelie').addEventListener('click', (e) => {
-      e.stopPropagation();
-      targetMoodProfile = 'Amélie';
-      moodModalTitle.textContent = "Humeur d'Amélie";
-      modalMood.classList.add('open');
-    });
-
-    document.getElementById('btn-close-mood').addEventListener('click', () => {
-      modalMood.classList.remove('open');
-    });
-
-    document.querySelectorAll('.mood-choice-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const icon = btn.getAttribute('data-icon');
-        const text = btn.getAttribute('data-text');
-        set(ref(db, `user_moods/${targetMoodProfile}`), { icon, text, at: Date.now() });
-        modalMood.classList.remove('open');
-      });
-    });
-
-    function renderMoods(data) {
-      if (!data) return;
-      if (data.Romain) {
-        document.getElementById('mood-icon-romain').textContent = data.Romain.icon || '⚡';
-        document.getElementById('mood-text-romain').textContent = data.Romain.text || 'En forme';
-      }
-      if (data.Amélie) {
-        document.getElementById('mood-icon-amelie').textContent = data.Amélie.icon || '☕';
-        document.getElementById('mood-text-amelie').textContent = data.Amélie.text || 'Posée';
-      }
-    }
-
+    /* Sélection de profil simplifiée : uniquement Romain ou Amélie. */
     /* GESTION DE LA SÉLECTION DU PROFIL ACTIF */
     let currentProfile = localStorage.getItem('active_user') || 'Romain';
     const btnRomain = document.getElementById('btn-romain');
