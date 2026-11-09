@@ -2681,7 +2681,7 @@
       const morningDone = typeof mEntry === 'object' ? !!mEntry?.done : !!mEntry;
       const eveningDone = typeof eEntry === 'object' ? !!eEntry?.done : !!eEntry;
 
-      const morningLate = (hour >= 9) && !morningDone;
+      const morningLate = (hour >= 7) && !morningDone;
       const eveningLate = (hour >= 21) && !eveningDone;
 
       const medAlert = document.getElementById('med-alert');
@@ -2694,7 +2694,7 @@
         if (morningLate && eveningLate) {
           medAlertText.textContent = "ALERTE : Cachets matin ET soir d'Inky non cochés !";
         } else if (morningLate) {
-          medAlertText.textContent = "ALERTE : Cachet du MATIN d'Inky oublié (> 9h) !";
+          medAlertText.textContent = "ALERTE : Cachet du MATIN d'Inky oublié (après 7h) !";
         } else {
           medAlertText.textContent = "RAPPEL : Cachet du SOIR d'Inky à donner avant minuit !";
         }
