@@ -2441,25 +2441,29 @@
       checkWeekChanged(now);
     }
 
-    /* MÉTÉO SIMPLE : géolocalisation du navigateur + prévision Open-Meteo */
+    /* MÉTÉO FIXE : Jonquières (34725), sans géolocalisation du navigateur */
     const weatherEl = document.getElementById('header-weather');
     const weatherLabels = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+    const weatherLocations = [
+      {name:'Jonquières',lat:43.675,lon:3.478},
+      {name:"Clermont-l'Hérault",lat:43.628,lon:3.432}
+    ];
     function showWeatherError(){ if(weatherEl) weatherEl.textContent='🌤️ Météo indisponible'; }
-    function loadAfternoonWeather(lat,lon){
-      const url='https://api.open-meteo.com/v1/forecast?latitude='+encodeURIComponent(lat)+'&longitude='+encodeURIComponent(lon)+'&hourly=temperature_2m,weather_code&forecast_days=1&timezone=auto';
+    function loadAfternoonWeather(location, isFallback=false){
+      const url='https://api.open-meteo.com/v1/forecast?latitude='+location.lat+'&longitude='+location.lon+'&hourly=temperature_2m,weather_code&forecast_days=1&timezone=auto';
       fetch(url).then(r=>{if(!r.ok)throw new Error('weather');return r.json();}).then(data=>{
         const times=data.hourly?.time||[], temps=data.hourly?.temperature_2m||[], codes=data.hourly?.weather_code||[];
         const today=new Date(); const targetHour=15; let best=-1,delta=Infinity;
         times.forEach((t,i)=>{const d=new Date(t);if(d.getDate()===today.getDate()&&d.getMonth()===today.getMonth()&&d.getFullYear()===today.getFullYear()){const diff=Math.abs(d.getHours()-targetHour);if(diff<delta){delta=diff;best=i;}}});
         if(best<0||temps[best]==null)throw new Error('no forecast');
-        const code=codes[best];weatherEl.textContent=(weatherLabels[code]||'🌤️')+' Cet après-midi : '+Math.round(temps[best])+'°';
-      }).catch(showWeatherError);
+        const code=codes[best];
+        weatherEl.textContent=location.name+' : '+(weatherLabels[code]||'🌤️')+' '+Math.round(temps[best])+'°';
+      }).catch(()=>{
+        if(!isFallback) loadAfternoonWeather(weatherLocations[1],true);
+        else showWeatherError();
+      });
     }
-    function initWeather(){
-      if(!navigator.geolocation){showWeatherError();return;}
-      navigator.geolocation.getCurrentPosition(pos=>loadAfternoonWeather(pos.coords.latitude,pos.coords.longitude),showWeatherError,{enableHighAccuracy:false,timeout:9000,maximumAge:3600000});
-    }
-    initWeather();
+    loadAfternoonWeather(weatherLocations[0]);
     /* Décor animé de fond supprimé pour alléger la tablette. */
     /* ANIMATIONS DYNAMIQUES ET MICRO-INTERACTIONS */
     document.addEventListener('click',e=>{
@@ -2576,7 +2580,7 @@
       const morningDone = typeof mEntry === 'object' ? !!mEntry?.done : !!mEntry;
       const eveningDone = typeof eEntry === 'object' ? !!eEntry?.done : !!eEntry;
 
-      const morningLate = (hour >= 7) && !morningDone;
+      const morningLate = (hour >= 6) && !morningDone;
       const eveningLate = (hour >= 21) && !eveningDone;
 
       const medAlert = document.getElementById('med-alert');
@@ -2589,7 +2593,7 @@
         if (morningLate && eveningLate) {
           medAlertText.textContent = "ALERTE : Cachets matin ET soir d'Inky non cochés !";
         } else if (morningLate) {
-          medAlertText.textContent = "ALERTE : Cachet du MATIN d'Inky oublié (après 7h) !";
+          medAlertText.textContent = "ALERTE : Cachet du MATIN d'Inky oublié (après 6h) !";
         } else {
           medAlertText.textContent = "RAPPEL : Cachet du SOIR d'Inky à donner avant minuit !";
         }
