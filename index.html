@@ -629,8 +629,25 @@
       padding: 7px 10px;
       cursor: pointer;
     }
-    .jow-item.done { opacity: 0.45; }
-    .jow-item.done .jow-name { text-decoration: line-through; }
+    .jow-item.done,
+    .jow-item.done.picked-dish {
+      opacity: 1;
+      background: rgba(0, 0, 0, 0.48) !important;
+      border-color: rgba(255, 255, 255, 0.045) !important;
+      box-shadow: none !important;
+    }
+    .jow-item.done .jow-name {
+      color: #77717f;
+      text-decoration: line-through;
+    }
+    .jow-item.done .jow-icon { opacity: 0.42; filter: grayscale(1); }
+    .jow-item.done .who-badge { opacity: 0.5; }
+    .jow-item.done .badge {
+      background: rgba(125, 125, 125, 0.16);
+      color: #aaa3ad;
+      border-color: rgba(255, 255, 255, 0.06);
+    }
+    .jow-item.done:active .jow-name { color: #77717f !important; }
     .jow-item.picked-dish {
       border-color: var(--amber) !important;
       background: var(--amber-glow) !important;
