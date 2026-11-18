@@ -648,6 +648,64 @@
       border-color: rgba(255, 255, 255, 0.06);
     }
     .jow-item.done:active .jow-name { color: #77717f !important; }
+    .jow-expiry {
+      color: #d8b879;
+      font-size: 0.68rem;
+      font-weight: 700;
+      white-space: nowrap;
+      padding: 2px 5px;
+      border-radius: 6px;
+      background: rgba(216, 184, 121, 0.10);
+    }
+    .jow-item.done .jow-expiry { color: #8c8790; background: rgba(125,125,125,0.10); }
+    .jow-import-preview {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 38vh;
+      overflow-y: auto;
+    }
+    .jow-import-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 7px 9px;
+      border: 1px solid var(--card-border);
+      border-radius: 9px;
+      background: rgba(255,255,255,0.025);
+    }
+    .jow-import-title {
+      min-width: 0;
+      flex: 1;
+      font-size: 0.8rem;
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+    .jow-import-date-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      flex: none;
+      width: 142px;
+    }
+    .jow-import-date-wrap label {
+      color: var(--muted);
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+    .jow-import-date {
+      width: 100%;
+      min-width: 0;
+      color-scheme: dark;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--card-border);
+      border-radius: 7px;
+      color: var(--text);
+      padding: 5px;
+      font: inherit;
+      font-size: 0.75rem;
+    }
     .jow-item.picked-dish {
       border-color: var(--amber) !important;
       background: var(--amber-glow) !important;
@@ -1770,11 +1828,13 @@
   <div class="modal-overlay" id="modal">
     <div class="modal-box">
       <h3 class="serif" style="font-size: 1.25rem; color: var(--amber);">Importer la commande Jow</h3>
-      <p style="font-size: 0.82rem; color: var(--muted); line-height: 1.4;">Collez vos recettes (une par ligne) :</p>
+      <p style="font-size: 0.82rem; color: var(--muted); line-height: 1.4;">Collez vos recettes (une par ligne), puis préparez la liste pour renseigner la date de péremption du produit principal de chaque recette.</p>
       <textarea id="jow-paste" placeholder="Exemple :&#10;Mocktail d'Halloween&#10;Pâtes au poulet & chorizo&#10;Camem'flette..."></textarea>
+      <button class="btn-action" id="btn-prepare-jow" style="align-self:flex-start; padding:7px 12px;">Préparer les recettes</button>
+      <div id="jow-import-preview" class="jow-import-preview"></div>
       <div class="modal-actions">
         <button class="btn-secondary" id="btn-close-modal">Annuler</button>
-        <button class="btn-action" id="btn-save-jow" style="padding: 7px 16px;">Enregistrer le menu</button>
+        <button class="btn-action" id="btn-save-jow" style="padding: 7px 16px; display:none;">Enregistrer le menu</button>
       </div>
     </div>
   </div>
@@ -2657,7 +2717,12 @@
       }
 
       const indexedRecipes = jowRecipes.map((r, i) => ({ ...r, originalIndex: i }));
-      indexedRecipes.sort((a, b) => (a.done === b.done ? 0 : a.done ? 1 : -1));
+      indexedRecipes.sort((a, b) => {
+        if (!!a.done !== !!b.done) return a.done ? 1 : -1;
+        const dateA = a.expiry || '9999-12-31';
+        const dateB = b.expiry || '9999-12-31';
+        return dateA.localeCompare(dateB);
+      });
 
       indexedRecipes.forEach(rec => {
         const item = document.createElement('div');
@@ -2671,12 +2736,16 @@
         });
 
         const who = rec.by ? `<span class="who-badge ${rec.by === 'Romain' ? 'romain' : 'amelie'}">${rec.by}</span>` : '';
+        const expiryLabel = rec.expiry
+          ? `<span class="jow-expiry" title="Date de péremption">📅 ${new Date(rec.expiry + 'T00:00:00').toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })}</span>`
+          : '';
         item.innerHTML = `
           <div class="jow-left">
             <span class="jow-icon">${rec.icon || guessIcon(rec.title)}</span>
             <span class="jow-name">${rec.title}</span>
           </div>
           <div class="jow-right-meta">
+            ${expiryLabel}
             ${who}
             <span class="badge">${rec.done ? 'Fait ✓' : 'À faire'}</span>
           </div>
@@ -2817,15 +2886,75 @@
     /* MODAL JOW */
     const modal = document.getElementById('modal');
     const jowPaste = document.getElementById('jow-paste');
-    document.getElementById('btn-open-modal').addEventListener('click', () => { modal.classList.add('open'); jowPaste.focus(); });
+    const jowImportPreview = document.getElementById('jow-import-preview');
+    const btnPrepareJow = document.getElementById('btn-prepare-jow');
+    const btnSaveJow = document.getElementById('btn-save-jow');
+
+    function resetJowImportPreview() {
+      jowImportPreview.innerHTML = '';
+      btnSaveJow.style.display = 'none';
+      btnPrepareJow.style.display = 'inline-flex';
+    }
+
+    document.getElementById('btn-open-modal').addEventListener('click', () => {
+      jowPaste.value = '';
+      resetJowImportPreview();
+      modal.classList.add('open');
+      jowPaste.focus();
+    });
     document.getElementById('btn-close-modal').addEventListener('click', () => { modal.classList.remove('open'); });
-    document.getElementById('btn-save-jow').addEventListener('click', () => {
-      const text = jowPaste.value.trim();
-      if (!text) { modal.classList.remove('open'); return; }
-      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 3 && !l.toLowerCase().includes('total') && !l.toLowerCase().includes('livraison'));
-      const newRecipes = lines.map(line => ({ title: line, icon: guessIcon(line), done: false, by: null }));
+    jowPaste.addEventListener('input', resetJowImportPreview);
+
+    btnPrepareJow.addEventListener('click', () => {
+      const lines = jowPaste.value.split('\n').map(l => l.trim())
+        .filter(l => l.length > 3 && !l.toLowerCase().includes('total') && !l.toLowerCase().includes('livraison'));
+      if (!lines.length) {
+        alert('Ajoute au moins une recette avant de préparer la liste.');
+        return;
+      }
+
+      jowImportPreview.innerHTML = '';
+      lines.forEach(line => {
+        const row = document.createElement('div');
+        row.className = 'jow-import-row';
+
+        const title = document.createElement('span');
+        title.className = 'jow-import-title';
+        title.textContent = line;
+
+        const dateWrap = document.createElement('div');
+        dateWrap.className = 'jow-import-date-wrap';
+
+        const dateLabel = document.createElement('label');
+        dateLabel.textContent = 'Péremption du produit';
+
+        const dateInput = document.createElement('input');
+        dateInput.type = 'date';
+        dateInput.className = 'jow-import-date';
+        dateInput.setAttribute('aria-label', 'Date de péremption du produit principal pour ' + line);
+
+        dateWrap.append(dateLabel, dateInput);
+        row.append(title, dateWrap);
+        jowImportPreview.appendChild(row);
+      });
+
+      btnPrepareJow.style.display = 'none';
+      btnSaveJow.style.display = 'inline-flex';
+    });
+
+    btnSaveJow.addEventListener('click', () => {
+      const rows = [...jowImportPreview.querySelectorAll('.jow-import-row')];
+      if (!rows.length) return;
+
+      const newRecipes = rows.map(row => {
+        const title = row.querySelector('.jow-import-title').textContent;
+        const expiry = row.querySelector('.jow-import-date').value || null;
+        return { title, icon: guessIcon(title), done: false, by: null, expiry };
+      });
+
       set(ref(db, 'jow_recipes'), newRecipes);
       jowPaste.value = '';
+      resetJowImportPreview();
       modal.classList.remove('open');
     });
 
