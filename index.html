@@ -2620,8 +2620,20 @@
       return monday;
     }
 
+    function getAmeliePlanningMonday() {
+      const now = new Date();
+      const monday = getMondayOfWeek(now);
+      // Le samedi et le dimanche, on prépare déjà la semaine suivante.
+      if (now.getDay() === 6 || now.getDay() === 0) monday.setDate(monday.getDate() + 7);
+      return monday;
+    }
+
+    function getAmeliePlanningWeekId() {
+      return getWeekId(getAmeliePlanningMonday());
+    }
+
     function getAmelieWeekDates() {
-      const monday = getMondayOfWeek(new Date());
+      const monday = getAmeliePlanningMonday();
       return Array.from({ length: 7 }, (_, index) => {
         const date = new Date(monday);
         date.setDate(monday.getDate() + index);
@@ -2635,12 +2647,14 @@
 
     function renderAmelieSchedule() {
       const dates = getAmelieWeekDates();
-      const weekId = getWeekId(new Date());
+      const weekId = getAmeliePlanningWeekId();
       const schedule = amelieSchedules[weekId] || {};
-      const todayIndex = (new Date().getDay() + 6) % 7;
+      const now = new Date();
+      const isUpcomingWeek = now.getDay() === 6 || now.getDay() === 0;
+      const todayIndex = isUpcomingWeek ? -1 : (now.getDay() + 6) % 7;
       const dateLabel = dates[0].toLocaleDateString('fr-FR', { day:'numeric', month:'long' }) +
         ' au ' + dates[6].toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
-      document.getElementById('amelie-schedule-week-label').textContent = 'Semaine en cours · ' + dateLabel;
+      document.getElementById('amelie-schedule-week-label').textContent = (isUpcomingWeek ? 'Semaine à venir · ' : 'Semaine en cours · ') + dateLabel;
       amelieWeekList.innerHTML = '';
 
       dates.forEach((date, index) => {
@@ -2669,14 +2683,22 @@
         amelieWeekList.appendChild(row);
       });
 
-      const todayEntry = schedule[todayIndex] || {};
-      const todayHours = [formatAmelieTimeRange(todayEntry.morningStart, todayEntry.morningEnd), formatAmelieTimeRange(todayEntry.afternoonStart, todayEntry.afternoonEnd)].filter(Boolean);
-      amelieLaunchSub.textContent = todayEntry.rest ? 'Aujourd’hui : repos' :
-        (todayHours.length ? 'Aujourd’hui : ' + todayHours.join(' · ') : 'Planning de la semaine · À renseigner');
+      if (isUpcomingWeek) {
+        const filledDays = dates.filter((_, index) => {
+          const entry = schedule[index] || {};
+          return entry.rest || entry.morningStart || entry.morningEnd || entry.afternoonStart || entry.afternoonEnd;
+        }).length;
+        amelieLaunchSub.textContent = filledDays ? 'Semaine prochaine · ' + filledDays + '/7 jours renseignés' : 'Semaine prochaine · À renseigner';
+      } else {
+        const todayEntry = schedule[todayIndex] || {};
+        const todayHours = [formatAmelieTimeRange(todayEntry.morningStart, todayEntry.morningEnd), formatAmelieTimeRange(todayEntry.afternoonStart, todayEntry.afternoonEnd)].filter(Boolean);
+        amelieLaunchSub.textContent = todayEntry.rest ? 'Aujourd’hui : repos' :
+          (todayHours.length ? 'Aujourd’hui : ' + todayHours.join(' · ') : 'Planning de la semaine · À renseigner');
+      }
     }
 
     function buildAmelieScheduleEditor() {
-      const weekId = getWeekId(new Date());
+      const weekId = getAmeliePlanningWeekId();
       const schedule = amelieSchedules[weekId] || {};
       amelieEditGrid.innerHTML = '';
       DAYS_LABEL.forEach((dayName, index) => {
@@ -2728,7 +2750,7 @@
     }
 
     function openAmelieSchedule() {
-      editingAmelieWeek = getWeekId(new Date());
+      editingAmelieWeek = getAmeliePlanningWeekId();
       amelieScheduleView.style.display = 'block';
       amelieScheduleEditor.style.display = 'none';
       renderAmelieSchedule();
@@ -2755,7 +2777,9 @@
         row.querySelectorAll('.amelie-time-input').forEach(input => { entry[input.dataset.field] = input.value || ''; });
         result[dayIndex] = entry;
       });
+      amelieSchedules[weekId] = result;
       set(ref(db, 'amelie_work_schedule/' + weekId), result);
+      renderAmelieSchedule();
       amelieScheduleEditor.style.display = 'none';
       amelieScheduleView.style.display = 'block';
     });
