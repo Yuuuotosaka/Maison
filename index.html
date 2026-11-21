@@ -989,6 +989,71 @@
       accent-color: var(--amber);
     }
 
+
+    /* Planning hebdomadaire d'Amélie */
+    .amelie-schedule-launch {
+      width: 100%;
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 15px;
+      border: 1px solid rgba(244, 143, 177, 0.32);
+      border-radius: 13px;
+      background: rgba(244, 143, 177, 0.075);
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      flex: none;
+    }
+    .amelie-schedule-launch:active { transform: scale(0.99); }
+    .amelie-schedule-launch-main { display:flex; align-items:center; gap:10px; min-width:0; }
+    .amelie-schedule-launch-icon { font-size:1.35rem; flex:none; }
+    .amelie-schedule-launch-title { font-size:0.86rem; font-weight:800; color:var(--color-amelie); }
+    .amelie-schedule-launch-sub { font-size:0.72rem; color:var(--muted); margin-top:2px; }
+    .amelie-schedule-launch-arrow { color:var(--color-amelie); font-size:1.2rem; flex:none; }
+    .amelie-week-list { display:flex; flex-direction:column; gap:6px; }
+    .amelie-week-row {
+      display:grid;
+      grid-template-columns: minmax(74px, 0.7fr) minmax(0, 2fr);
+      gap:10px;
+      align-items:center;
+      padding:8px 10px;
+      border:1px solid var(--card-border);
+      border-radius:10px;
+      background:rgba(255,255,255,0.025);
+    }
+    .amelie-week-row.today { border-color:var(--color-amelie); background:rgba(244,143,177,0.09); }
+    .amelie-week-day { font-size:0.8rem; font-weight:800; }
+    .amelie-week-date { display:block; font-size:0.66rem; color:var(--muted); font-weight:500; margin-top:2px; }
+    .amelie-week-hours { font-size:0.78rem; color:var(--text); line-height:1.5; }
+    .amelie-week-hours.off { color:var(--muted); font-style:italic; }
+    .amelie-edit-grid { display:flex; flex-direction:column; gap:7px; }
+    .amelie-edit-day {
+      padding:9px 10px;
+      border:1px solid var(--card-border);
+      border-radius:10px;
+      background:rgba(255,255,255,0.025);
+    }
+    .amelie-edit-day-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:7px; }
+    .amelie-edit-day-title { font-size:0.82rem; font-weight:800; }
+    .amelie-rest-toggle { display:flex; align-items:center; gap:5px; color:var(--muted); font-size:0.72rem; }
+    .amelie-rest-toggle input { width:17px; height:17px; accent-color:var(--color-amelie); }
+    .amelie-time-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; }
+    .amelie-time-field { display:flex; flex-direction:column; gap:3px; min-width:0; }
+    .amelie-time-field label { font-size:0.65rem; color:var(--muted); font-weight:700; }
+    .amelie-time-input {
+      width:100%; min-width:0; padding:7px 5px; border-radius:8px;
+      border:1px solid var(--card-border); background:rgba(255,255,255,0.06);
+      color:var(--text); color-scheme:dark; font:inherit; font-size:0.78rem;
+    }
+    .amelie-edit-day.is-rest .amelie-time-grid { opacity:0.35; pointer-events:none; }
+    @media (max-width: 650px) {
+      .amelie-time-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .amelie-week-row { grid-template-columns:72px minmax(0,1fr); }
+    }
+
     /* Modales */
     .modal-overlay {
       display: none;
@@ -1452,6 +1517,16 @@
 
       <!-- ================= PAGE 1 : VIE DU QUOTIDIEN ================= -->
       <div class="slide-page" id="page-1">
+        <button type="button" class="amelie-schedule-launch" id="btn-open-amelie-schedule">
+          <span class="amelie-schedule-launch-main">
+            <span class="amelie-schedule-launch-icon">🗓️</span>
+            <span>
+              <span class="amelie-schedule-launch-title">Horaires d’Amélie</span>
+              <span class="amelie-schedule-launch-sub" id="amelie-schedule-launch-sub">Planning de la semaine · À renseigner</span>
+            </span>
+          </span>
+          <span class="amelie-schedule-launch-arrow">›</span>
+        </button>
         <div class="dashboard-grid">
           
           <div class="col">
@@ -1643,6 +1718,33 @@
     <div class="slider-nav" aria-label="Navigation entre les pages">
       <button type="button" class="slider-nav-btn active" id="nav-page-1" onclick="goToSlide(0)">← Quotidien</button>
       <button type="button" class="slider-nav-btn" id="nav-page-2" onclick="goToSlide(1)">Maison & entretien →</button>
+    </div>
+  </div>
+
+  <!-- PLANNING HEBDOMADAIRE D'AMÉLIE -->
+  <div class="modal-overlay" id="modal-amelie-schedule">
+    <div class="modal-box" style="max-width:720px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+        <div>
+          <h3 class="serif" style="font-size:1.25rem; color:var(--color-amelie);">🗓️ Horaires d’Amélie</h3>
+          <p id="amelie-schedule-week-label" style="font-size:0.76rem; color:var(--muted); margin-top:3px;"></p>
+        </div>
+        <button type="button" class="btn-secondary" id="btn-close-amelie-schedule">Fermer</button>
+      </div>
+      <div id="amelie-schedule-view">
+        <div class="amelie-week-list" id="amelie-week-list"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-action" id="btn-edit-amelie-schedule" style="padding:8px 14px;">✏️ Modifier les horaires</button>
+        </div>
+      </div>
+      <div id="amelie-schedule-editor" style="display:none;">
+        <p style="font-size:0.76rem; color:var(--muted);">Choisis les heures de début et de fin pour chaque période. Coche « Repos » si Amélie ne travaille pas ce jour-là.</p>
+        <div class="amelie-edit-grid" id="amelie-edit-grid"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="btn-cancel-amelie-edit">Annuler</button>
+          <button type="button" class="btn-action" id="btn-save-amelie-schedule" style="padding:8px 14px;">Enregistrer la semaine</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2501,6 +2603,163 @@
 
     const DAYS_LABEL = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
+    /* PLANNING HEBDOMADAIRE D'AMÉLIE */
+    const amelieScheduleModal = document.getElementById('modal-amelie-schedule');
+    const amelieScheduleView = document.getElementById('amelie-schedule-view');
+    const amelieScheduleEditor = document.getElementById('amelie-schedule-editor');
+    const amelieWeekList = document.getElementById('amelie-week-list');
+    const amelieEditGrid = document.getElementById('amelie-edit-grid');
+    const amelieLaunchSub = document.getElementById('amelie-schedule-launch-sub');
+    let amelieSchedules = {};
+    let editingAmelieWeek = null;
+
+    function getMondayOfWeek(date) {
+      const monday = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+      monday.setHours(0, 0, 0, 0);
+      return monday;
+    }
+
+    function getAmelieWeekDates() {
+      const monday = getMondayOfWeek(new Date());
+      return Array.from({ length: 7 }, (_, index) => {
+        const date = new Date(monday);
+        date.setDate(monday.getDate() + index);
+        return date;
+      });
+    }
+
+    function formatAmelieTimeRange(start, end) {
+      return start && end ? start + ' – ' + end : (start || end || '');
+    }
+
+    function renderAmelieSchedule() {
+      const dates = getAmelieWeekDates();
+      const weekId = getWeekId(new Date());
+      const schedule = amelieSchedules[weekId] || {};
+      const todayIndex = (new Date().getDay() + 6) % 7;
+      const dateLabel = dates[0].toLocaleDateString('fr-FR', { day:'numeric', month:'long' }) +
+        ' au ' + dates[6].toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
+      document.getElementById('amelie-schedule-week-label').textContent = 'Semaine en cours · ' + dateLabel;
+      amelieWeekList.innerHTML = '';
+
+      dates.forEach((date, index) => {
+        const entry = schedule[index] || {};
+        const row = document.createElement('div');
+        row.className = 'amelie-week-row' + (index === todayIndex ? ' today' : '');
+        const day = document.createElement('div');
+        day.className = 'amelie-week-day';
+        day.textContent = DAYS_LABEL[index];
+        const dayDate = document.createElement('span');
+        dayDate.className = 'amelie-week-date';
+        dayDate.textContent = date.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' });
+        day.appendChild(dayDate);
+
+        const hours = document.createElement('div');
+        hours.className = 'amelie-week-hours';
+        const morning = formatAmelieTimeRange(entry.morningStart, entry.morningEnd);
+        const afternoon = formatAmelieTimeRange(entry.afternoonStart, entry.afternoonEnd);
+        if (entry.rest || (!morning && !afternoon)) {
+          hours.classList.add('off');
+          hours.textContent = 'Repos / Non renseigné';
+        } else {
+          hours.textContent = [morning ? '☀️ Matin : ' + morning : '', afternoon ? '🌤️ Après-midi : ' + afternoon : ''].filter(Boolean).join('  ·  ');
+        }
+        row.append(day, hours);
+        amelieWeekList.appendChild(row);
+      });
+
+      const todayEntry = schedule[todayIndex] || {};
+      const todayHours = [formatAmelieTimeRange(todayEntry.morningStart, todayEntry.morningEnd), formatAmelieTimeRange(todayEntry.afternoonStart, todayEntry.afternoonEnd)].filter(Boolean);
+      amelieLaunchSub.textContent = todayEntry.rest ? 'Aujourd’hui : repos' :
+        (todayHours.length ? 'Aujourd’hui : ' + todayHours.join(' · ') : 'Planning de la semaine · À renseigner');
+    }
+
+    function buildAmelieScheduleEditor() {
+      const weekId = getWeekId(new Date());
+      const schedule = amelieSchedules[weekId] || {};
+      amelieEditGrid.innerHTML = '';
+      DAYS_LABEL.forEach((dayName, index) => {
+        const entry = schedule[index] || {};
+        const row = document.createElement('div');
+        row.className = 'amelie-edit-day' + (entry.rest ? ' is-rest' : '');
+        row.dataset.day = String(index);
+
+        const head = document.createElement('div');
+        head.className = 'amelie-edit-day-head';
+        const title = document.createElement('span');
+        title.className = 'amelie-edit-day-title';
+        title.textContent = dayName + ' · ' + getAmelieWeekDates()[index].toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' });
+        const restLabel = document.createElement('label');
+        restLabel.className = 'amelie-rest-toggle';
+        const rest = document.createElement('input');
+        rest.type = 'checkbox';
+        rest.className = 'amelie-rest-checkbox';
+        rest.checked = !!entry.rest;
+        rest.addEventListener('change', () => row.classList.toggle('is-rest', rest.checked));
+        const restText = document.createElement('span');
+        restText.textContent = 'Repos';
+        restLabel.append(rest, restText);
+        head.append(title, restLabel);
+
+        const timeGrid = document.createElement('div');
+        timeGrid.className = 'amelie-time-grid';
+        [
+          ['Matin · début', 'morningStart'],
+          ['Matin · fin', 'morningEnd'],
+          ['Après-midi · début', 'afternoonStart'],
+          ['Après-midi · fin', 'afternoonEnd']
+        ].forEach(([labelText, field]) => {
+          const wrap = document.createElement('div');
+          wrap.className = 'amelie-time-field';
+          const label = document.createElement('label');
+          label.textContent = labelText;
+          const input = document.createElement('input');
+          input.type = 'time';
+          input.className = 'amelie-time-input';
+          input.dataset.field = field;
+          input.value = entry[field] || '';
+          wrap.append(label, input);
+          timeGrid.appendChild(wrap);
+        });
+        row.append(head, timeGrid);
+        amelieEditGrid.appendChild(row);
+      });
+    }
+
+    function openAmelieSchedule() {
+      editingAmelieWeek = getWeekId(new Date());
+      amelieScheduleView.style.display = 'block';
+      amelieScheduleEditor.style.display = 'none';
+      renderAmelieSchedule();
+      amelieScheduleModal.classList.add('open');
+    }
+
+    document.getElementById('btn-open-amelie-schedule').addEventListener('click', openAmelieSchedule);
+    document.getElementById('btn-close-amelie-schedule').addEventListener('click', () => amelieScheduleModal.classList.remove('open'));
+    document.getElementById('btn-edit-amelie-schedule').addEventListener('click', () => {
+      buildAmelieScheduleEditor();
+      amelieScheduleView.style.display = 'none';
+      amelieScheduleEditor.style.display = 'block';
+    });
+    document.getElementById('btn-cancel-amelie-edit').addEventListener('click', () => {
+      amelieScheduleEditor.style.display = 'none';
+      amelieScheduleView.style.display = 'block';
+    });
+    document.getElementById('btn-save-amelie-schedule').addEventListener('click', () => {
+      const weekId = editingAmelieWeek || getWeekId(new Date());
+      const result = {};
+      amelieEditGrid.querySelectorAll('.amelie-edit-day').forEach(row => {
+        const dayIndex = row.dataset.day;
+        const entry = { rest: row.querySelector('.amelie-rest-checkbox').checked };
+        row.querySelectorAll('.amelie-time-input').forEach(input => { entry[input.dataset.field] = input.value || ''; });
+        result[dayIndex] = entry;
+      });
+      set(ref(db, 'amelie_work_schedule/' + weekId), result);
+      amelieScheduleEditor.style.display = 'none';
+      amelieScheduleView.style.display = 'block';
+    });
+
     function updateClock() {
       const now = new Date();
       const h = String(now.getHours()).padStart(2, '0');
@@ -2966,6 +3225,11 @@
     });
 
     /* ÉCOUTEURS FIREBASE */
+    onValue(ref(db, 'amelie_work_schedule'), snapshot => {
+      amelieSchedules = snapshot.val() || {};
+      renderAmelieSchedule();
+    });
+
     onValue(ref(db, 'inky_med_week'), snapshot => {
       syncedWeekId = snapshot.val();
       const now = new Date();
